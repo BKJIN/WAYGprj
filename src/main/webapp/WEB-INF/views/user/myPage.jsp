@@ -140,6 +140,8 @@ $(document).ready(function(){
 		$("input[name='uAddr2']").attr("readonly",false);
 	});
 });
+
+console.log("test");
 </script>
 
 </body>
