@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.project.init.dao.UserIDao">
+	<select id="emailCheck" parameterType="String" resultType="int">
+		select count(useremail) from userinfo where useremail = #{id}
+	</select>
+
+	<select id="nickCheck" parameterType="String" resultType="int">
+		select count(usernick) from userinfo where usernick = #{nick}
+	</select>
+
+	<insert id="join" parameterType="com.project.init.dto.UserDto">
+		insert into userinfo(useremail,userpw,usernick,userbirth,userage,usergender,userpst,useraddress1,userjoindate,useraddress2) 
+		values(#{userEmail},#{userPw},#{userNick},#{userBirth},#{userAge},#{userGender},#{userPst},#{userAddress1},sysdate,#{userAddress2})
+	</insert> <!-- values값 dto랑 맞춰서 -->
+	
+	<select id="login" parameterType="String" resultType="com.project.init.dto.UserDto">
+		select * from userinfo where useremail = #{userEmail}
+	</select>
+
+	<update id="userVisit" parameterType="String">
+		update userinfo set uservisitdate = sysdate where useremail = #{uId}
+	</update>
+	
+	<select id="myPage" parameterType="String" resultType="com.project.init.dto.UserDto">
+		select useremail,usernick,userbirth,usergender,userpst,useraddress,userprofileimg,userprofilemsg from userinfo where useremail = #{uId}
+	</select> <!-- db랑 dto랑 이름 같게 하면 모든 컬럼 안써도 돼 -->	
+	
+	<update id="addPrfImg" parameterType="com.project.init.dto.UserDto">
+		update userinfo set userprofileimg = #{userProfileImg} where useremail = #{userEmail}
+	</update>
+</mapper>

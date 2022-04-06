@@ -1,0 +1,22 @@
+#loginModal .modal-dialog {
+	height : 100%;
+}
+
+#loginModal .modal-dialog .modal-content {
+	height : 40%;
+}
+
+#loginModal .modal-dialog #modalCloseBtn {
+	font-size: 4rem;
+	cursor: pointer;
+}
+
+#loginModal .modal-dialog .modal-content .modal-header #title {
+	line-height : 100%;
+}
+
+
+#loginModal .modal-dialog .modal-content .modal-body {
+	
+	height : 100%;
+}

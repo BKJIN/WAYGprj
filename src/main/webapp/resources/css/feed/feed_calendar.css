@@ -1,0 +1,60 @@
+section.container {
+	margin-top: 5em;
+}
+
+.modal-dialog {
+	height : 100%;
+}
+
+.modal-content {
+	height : 40%;
+}
+
+#modalCloseBtn {
+	font-size: 4rem;
+	cursor: pointer;
+}
+
+.modal-header #plan-date {
+	line-height : 100%;
+}
+
+
+.modal-body #map-container {
+	width : 40%;
+	height : 100%;
+}
+
+.modal-body #map-container #map {
+	height : 65%;
+}
+
+.modal-body #map-container #locations {
+	height : 30%;
+}
+
+.modal-body #plan_container {
+	width : 55%;
+	height : 100%;
+}
+
+
+.modal-body #plan_container .time_box .form-group {
+	width: 30%;
+}
+
+
+.body-container #feed-header {
+	width: 100%;
+	height : 200px;
+}
+
+.body-container #feed-header #profile-img {
+	width: 180px;
+	height: 180px;
+}
+
+.body-container #feed-header #profile-img .profile-img {
+	font-size: 150px;
+	color: darkblue;
+}
