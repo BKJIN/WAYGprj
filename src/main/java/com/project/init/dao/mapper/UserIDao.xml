@@ -27,7 +27,7 @@
 	</update>
 	
 	<select id="myPage" parameterType="String" resultType="com.project.init.dto.UserDto">
-		select useremail,usernick,userbirth,usergender,userpst,useraddress,userprofileimg,userprofilemsg from userinfo where useremail = #{uId}
+		select useremail,usernick,userbirth,usergender,userpst,useraddress1,userprofileimg,userprofilemsg,useraddress2 from userinfo where useremail = #{uId}
 	</select> <!-- db랑 dto랑 이름 같게 하면 모든 컬럼 안써도 돼 -->	
 	
 	<update id="addPrfImg" parameterType="com.project.init.dto.UserDto">

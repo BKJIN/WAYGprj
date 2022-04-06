@@ -18,6 +18,8 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js"></script>
+<!-- KAKAO API -->
+<script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 <link rel="stylesheet" type="text/css" href="../css/includes/header.css" />
 <link rel="stylesheet" type="text/css" href="../css/includes/footer.css" />
 <title>myPage</title>
@@ -55,7 +57,8 @@
 			</c:choose>
 		</div>
 		<div class="d-flex justify-content-center">
-			<div>${myPageInfo.userNick}</div>
+			<div id="userNick">${myPageInfo.userNick}</div>
+			<input id="inputUserNick" type="text" value="${myPageInfo.userNick}" style="display:none; text-align:center">
 		</div>
 		<div class="d-flex justify-content-center mt-1">
 			<div class="btn btn-sm btn-primary" style="height:32px;">
@@ -69,15 +72,15 @@
 	</form>
 	<div class="form-group">
 		<label for="userProfileMsg">BIO</label>
-		<textarea class="form-control" id="userProfileMsg" name="uPrfMsg" rows="5" readonly></textarea>
+		<textarea class="form-control border border-dark" id="userProfileMsg" name="uPrfMsg" rows="5" disabled></textarea>
 	</div>
 	<div class="form-group">
 		<label for="userEmail">EMAIL</label>
-		<input type="text" class="form-control" id="userEmail" name="uEmail" value="${myPageInfo.userEmail}" readonly>
+		<input type="text" class="form-control border border-dark" id="userEmail" name="uEmail" value="${myPageInfo.userEmail}" disabled>
 	</div>
 	<div class="form-group">
 		<label for="userBirth">BIRTH</label>
-		<input type="text" class="form-control" id="userBirth" name="uBirth" value="${myPageInfo.userBirth}" readonly>
+		<input type="text" class="form-control border border-dark" id="userBirth" name="uBirth" value="${myPageInfo.userBirth}" disabled>
 	</div>
 	<div class="form-group" style="text-align:center; margin:0 auto;">
 		<div class="btn-group btn-group-toggle" data-toggle="buttons">
@@ -92,13 +95,19 @@
 	<div class="form-group">
 		<label for="userAddr1">ADDRESS1</label>
 			<div class="form-inline mb-2">
-				<input type="text" class="form-control" id="userPst" name="uPst" value="${myPageInfo.userPst}" readonly>
+				<div class="input-group border border-dark rounded">
+					<input type="text" class="form-control" id="userPst" name="uPst" value="${myPageInfo.userPst}" onfocus="clickSerachPst()" disabled> <!-- readonly속성은 onfocus가 먹힘 -->
+					<span class="input-group-btn">
+						<button type="button" id="searchPst" class="btn btn-primary" onclick="serchPostCode()" style="display:none;">SERACH</button>
+					</span>
+				</div>
 			</div>
-		<input type="text" class="form-control" id="userAddr1" name="uAddr1" value="${myPageInfo.userAddress}" readonly>
+		<span id="guide" style="color:#999;display:none"></span>
+		<input type="text" class="form-control border border-dark" id="userAddr1" name="uAddr1" onfocus="clickSerachPst()" value="${myPageInfo.userAddress1}" disabled>
 	</div>
 	<div class="form-group">
 		<label for="userAddr2">ADDRESS2</label>
-		<input type="text" class="form-control" id="userAddr2" name="uAddr2" readonly>
+		<input type="text" class="form-control border border-dark" id="userAddr2" name="uAddr2" value= "${myPageInfo.userAddress2}" disabled>
 	</div>
 	<div class="d-flex justify-content-center">
 		<div>
@@ -115,6 +124,7 @@
 <script>
 console.log('${fileName}');
 
+//프로필사진 파일 등록시 자동 submit
 function clicksubmit() {
 	console.log("clicksubmit")
 	document.getElementById("submitImg").click();
@@ -131,17 +141,73 @@ $(document).ready(function(){
 		$("#male").prop("disabled",true);
 	}
 	
+	//회원정보 수정
 	$("#modifyInfo").click(function(){
+		//회원정보 수정-> 수정 완료로 버튼 변경
 		$("#modifyInfo").css("display","none");
 		$("#modified").css("display","inline");
-		$("textarea[name='uPrfMsg']").attr("readonly",false);
-		$("input[name='uPst']").attr("readonly",false);
-		$("input[name='uAddr1']").attr("readonly",false);
-		$("input[name='uAddr2']").attr("readonly",false);
+		
+		//회원정보 수정가능하게 바뀜
+		$("#userNick").css("display","none");
+		$("#inputUserNick").css("display","inline");
+		$("textarea[name='uPrfMsg']").attr("disabled",false);
+		$("input[name='uPst']").attr("disabled",false);
+		$("input[name='uAddr1']").attr("disabled",false);
+		$("input[name='uAddr2']").attr("disabled",false);
+		$("#searchPst").css("display","inline");
+	});
+	
+	$("#modified").click(function(){
+		var userNick = $("#inputUserNick").val();
+		var userBio = $("#userProfileMsg").val();
+		var userPst = $("#userPst").val();
+		var userAddr1 = $("#userAddr1").val();
+		var userAddr2 = $("#userAddr2").val();
+		var allData = {"userBio":userBio,"userPst":userPst,"userAddr1":userAddr1,"userAddr2":userAddr2};
+		console.log(userNick)
+		
 	});
 });
 
-console.log("test");
+//====== 주소 입력 ======
+function clickSerachPst() { //POSTCODE input, ADDRESS1 input 포커스시 serchPst 클릭
+	document.getElementById("searchPst").click();
+	document.getElementById("userPst").blur();
+	document.getElementById("userAddr1").blur();
+}
+
+//카카오 api
+function serchPostCode() {
+    new daum.Postcode({
+        oncomplete: function(data) {
+            // 팝업에서 검색결과 항목을 클릭했을때 실행할 코드를 작성하는 부분.
+
+            // 도로명 주소의 노출 규칙에 따라 주소를 표시한다.
+            // 내려오는 변수가 값이 없는 경우엔 공백('')값을 가지므로, 이를 참고하여 분기 한다.
+            var roadAddr = data.roadAddress; // 도로명 주소 변수
+
+			// 우편번호와 주소 정보를 해당 필드에 넣는다.
+            document.getElementById('userPst').value = data.zonecode;
+            document.getElementById("userAddr1").value = roadAddr;
+            
+			var guideTextBox = document.getElementById("guide");
+            // 사용자가 '선택 안함'을 클릭한 경우, 예상 주소라는 표시를 해준다.
+            if(data.autoRoadAddress) {
+                var expRoadAddr = data.autoRoadAddress;
+                guideTextBox.innerHTML = '(예상 도로명 주소 : ' + expRoadAddr + ')';
+                guideTextBox.style.display = 'block';
+
+            } else {
+                guideTextBox.innerHTML = '';
+                guideTextBox.style.display = 'none';
+            }
+            document.getElementById("userAddr2").focus(); // userAddr1입력 후 포커스
+            $('.userPst-validation').html('');
+            chkPst = true;
+        }
+    }).open();
+}
+
 </script>
 
 </body>
