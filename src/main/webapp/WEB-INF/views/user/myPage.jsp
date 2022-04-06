@@ -165,7 +165,6 @@ $(document).ready(function(){
 		var userAddr2 = $("#userAddr2").val();
 		var allData = {"userBio":userBio,"userPst":userPst,"userAddr1":userAddr1,"userAddr2":userAddr2};
 		console.log(userNick)
-		console.log("test")
 		
 	});
 });
