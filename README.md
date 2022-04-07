@@ -24,6 +24,7 @@ alter table userinfo
 commit;
 
 --1차 추가
+
 alter table userinfo
  modify userProfileMsg varchar2(600);
 
