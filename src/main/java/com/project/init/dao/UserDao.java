@@ -103,4 +103,25 @@ public class UserDao implements UserIDao {
 		return res;
 	}
 
+	@Override
+	public String pwcheck(String uId) {
+		System.out.println("UserDao_pwcheck");
+		String upw = sqlSession.selectOne("pwcheck",uId);
+		return upw;
+	}
+
+	@Override
+	public String modifyPw(String Npw, String uId) {
+		UserDto udto = new UserDto(uId,Npw,null,null,0,null,0,null,null,null,null,null,null,null,null,null);
+		int res = sqlSession.update("modifyPw",udto);
+		System.out.println(res);
+		String result = null;
+		if(res > 0)
+			result = "success";
+		else
+			result = "failed";
+		
+		return result;
+	}
+
 }

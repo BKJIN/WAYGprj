@@ -42,7 +42,7 @@
 <%@ include file="../includes/header.jsp" %>
 
 <div class="container" style="margin-top:90px; margin-bottom:20px;">
-	<!-- 회원정보 변경시 모달 -->
+	<!-- 회원정보 변경완료시, 비밀번호 변경시 모달 -->
 	<!-- modal button -->
 	<input id="modalBtn" type="hidden" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal" value="modal">
 	<!-- modal창 -->
@@ -53,7 +53,23 @@
 					<h4 class="modal-title">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WAYG</h4>
 				</div>
 				<div class="modal-body bg-light">
-					<h5>회원정보가 변경되었습니다.</h5>
+					<form action="modifyPw" id="modifyPwForm" method="post" style="display:none">
+						<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
+						<div class="form-group">
+							<label for="curPw">Current password</label>
+							<input type="password" class="form-control" id="curPw" name="crpw" autocomplete="off" required/>
+							<div class="form-group" style="visibility:hidden; color:red; font-size:12px;" id="curPwError">현재 비밀번호가 일치하지 않습니다.</div>
+						</div>
+						<div class="form-group">
+							<label for="newPw">New password</label>
+							<input type="password" class="form-control"  id="newPw" name="npw" autocomplete="off" required/>
+						</div>
+						<div class="form-group">
+							<label for="cfrmPw">Confirm new password</label>
+							<input type="password" class="form-control"  id="cfrmPw" name="cfpw" autocomplete="off" required/>
+						</div>
+						<input type="submit" value="비밀번호 변경" class="btn btn-sm btn-primary"/>
+					</form>
 				</div>
 				<div class="modal-footer bg-light">
 					<button id="closeBtn" type="button" class="btn btn-default btn-success" data-dismiss="modal">Close</button>
@@ -132,8 +148,8 @@
 		<div>
 			<button type="button" id="modifyInfo" class="btn btn-secondary">회원정보 수정</button>
 			<button type="button" id="modified" class="btn btn-success" style="display:none">수정 완료</button>
-			<button type="button" class="btn btn-secondary">비밀번호 변경</button>
-			<button type="button" class="btn btn-danger">회원 탈퇴</button>
+			<button type="button" id="modifyPw" class="btn btn-secondary">비밀번호 변경</button>
+			<button type="button" id="resignation" class="btn btn-danger">회원 탈퇴</button>
 		</div>
 	</div>
 </div>
@@ -202,6 +218,7 @@ $(document).ready(function(){
 				data: allData,
 				success:function(data){
 					if(data.search("modified") > -1) {
+						$(".modal-body").html("<h5>회원정보가 변경되었습니다.</h5>") //모달창 메세지
 						$("#modalBtn").trigger("click");
 						$("#closeBtn").click(function(event){
 							event.preventDefault();
@@ -217,6 +234,52 @@ $(document).ready(function(){
 				}
 			});
 		}
+	});
+	
+	//비밀번호 변경 버튼 클릭시 모달창 비밀번호변경 UI로 바뀜
+	$("#modifyPw").click(function(){
+		$("#modifyPwForm").css("display","inline");
+		$("#modalBtn").trigger("click");
+	});
+	
+	//모달창안에 비밀번호 변경 버튼 클릭시
+	$("#modifyPwForm").submit(function(e){
+		e.preventDefault();
+		$.ajax({
+			type : $("#modifyPwForm").attr("method"),
+			url : $("#modifyPwForm").attr("action"),
+			data : $("#modifyPwForm").serialize(),
+			success : function(data) {
+				if(data.search("pw-modified") > -1) {
+					$(".modal-body").html("<h5>비밀번호가 변경되었습니다.</h5>")
+					$("#closeBtn").click(function(){
+						$("#modifyPwForm").css("display","inline");
+					});
+				}
+				else if(data.search("pw-not-modified") > -1){
+					alert("비밀번호 변경에 실패했습니다. 다시 시도해 주세요.");
+				}
+				else {
+					//현재 비밀번호가 일치하지 않습니다. 보이게
+					$("#curPwError").css("visibility","visible");
+				}
+			},
+			error : function() {
+				alert("비밀번호 수정 에러. 다시 시도해 주세요.");
+			}
+		});
+	});
+	
+	//비밀번호변경 모달창 닫을시 모달창 초기화
+	$("#closeBtn").click(function(event){
+		$("#curPwError").css("visibility","hidden");
+		$("#curPw").val("");
+		$("#newPw").val("");
+		$("#cfrmPw").val("");
+	});
+	
+	$("#resignation").click(function(){
+		alert("회원탈퇴 하시겠습니까?");
 	});
 });
 

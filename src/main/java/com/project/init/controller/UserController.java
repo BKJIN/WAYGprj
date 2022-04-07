@@ -26,6 +26,7 @@ import com.project.init.command.AddPrfImgCommand;
 import com.project.init.command.ICommand;
 import com.project.init.command.JoinCommand;
 import com.project.init.command.MdfMyPageCommand;
+import com.project.init.command.ModifyPwCommand;
 import com.project.init.command.MypageCommand;
 import com.project.init.dao.UserDao;
 import com.project.init.dto.UserDto;
@@ -145,8 +146,8 @@ public class UserController {
 		String uPrfImg = null; //DB저장용 파일명
 		
 		MultipartFile mf = mtpRequest.getFile("pImg");
-		String path = "C:/ecl/workspace/project_init/src/main/webapp/resources/profileImg/";
-		String path1 = "C:/ecl/apache-tomcat-9.0.56/wtpwebapps/project_init/resources/profileImg/";
+		String path = "C:/ecl/workspaceWEB/WAYGprj/src/main/webapp/resources/profileImg/";
+		String path1 = "C:/ecl/apache-tomcat-9.0.56/wtpwebapps/WAYGprj/resources/profileImg/";
 		String originFileName = mf.getOriginalFilename();
 		long prename = System.currentTimeMillis();
 		long fileSize = mf.getSize();
@@ -175,11 +176,11 @@ public class UserController {
 			catch(Exception e) {
 				e.getMessage();
 			}
-			model.addAttribute("fileName", uPrfImg);
+//			model.addAttribute("fileName", uPrfImg);
 //			request.setAttribute("path", path);
 //			request.setAttribute("path1", path1);
 //			request.setAttribute("uPrfImg", uPrfImg);
-			return "/user/myPage";
+			return "redirect:/user/myPage";
 			//return "redirect:/user/myPage";
 		}
 		else {
@@ -202,9 +203,28 @@ public class UserController {
 			return "modified";
 		else
 			return "not-modified";
-		
-		
 	}
 	
+	@RequestMapping(value="/user/modifyPw", method=RequestMethod.POST, produces = "application/text; charset=UTF8")
+	@ResponseBody
+	public String modifyPw(HttpServletRequest request, HttpServletResponse response, Model model) {
+		System.out.println("modifyPw");
+		String Crpw = request.getParameter("crpw");
+		String upw = udao.pwcheck(Constant.username);
+		passwordEncoder = new BCryptPasswordEncoder();
+		if(passwordEncoder.matches(Crpw, upw)) {
+			mcom = new ModifyPwCommand();
+			mcom.execute(request, model);
+			String result = (String) request.getAttribute("result");
+			System.out.println(result);
+			if(result.equals("success"))
+				return "pw-modified";
+			else
+				return "pw-not-modified";
+		} else {
+			return "curPwDoesNotMatch";
+		}
+		
+	}
 
 }
