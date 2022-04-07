@@ -1,4 +1,5 @@
 //userInfo DB
+
 CREATE TABLE Userinfo(
  userEmail          varchar2(50) primary key,
  userPw             varchar2(128) not null,
