@@ -30,10 +30,18 @@
 		select useremail,usernick,userbirth,usergender,userpst,useraddress1,userprofileimg,userprofilemsg,useraddress2 from userinfo where useremail = #{uId}
 	</select> <!-- db랑 dto랑 이름 같게 하면 모든 컬럼 안써도 돼 -->	
 	
+	<select id="getolduPrfImg" parameterType="String" resultType="String">
+		select userprofileimg from userinfo where useremail = #{uId}
+	</select>
+	
 	<update id="addPrfImg" parameterType="com.project.init.dto.UserDto">
 		update userinfo set userprofileimg = #{userProfileImg} where useremail = #{userEmail}
 	</update>
 	
+	<update id="deletePrfImg" parameterType="String">
+		update userinfo set userprofileimg = null where useremail = #{uId}		
+	</update>
+
 	<update id="mdfMyPage" parameterType="com.project.init.dto.UserDto">
 		update userinfo set usernick = #{userNick}, userpst = #{userPst}, useraddress1 = #{userAddress1}, userprofilemsg = #{userProfileMsg}, useraddress2 = #{userAddress2} where useremail = #{userEmail}
 	</update>
@@ -45,4 +53,8 @@
 	<update id="modifyPw" parameterType="com.project.init.dto.UserDto">
 		update userinfo set userpw = #{userPw} where useremail = #{userEmail}
 	</update>
+	
+	<delete id="resign" parameterType="string">
+		delete from userinfo where useremail = #{uId}
+	</delete>
 </mapper>

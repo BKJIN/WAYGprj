@@ -80,6 +80,12 @@ public class UserDao implements UserIDao {
 	}
 	
 	@Override
+	public String getolduPrfImg(String uId) {
+		String result = sqlSession.selectOne("getolduPrfImg",uId);
+		return result;
+	}
+	
+	@Override
 	public String addPrfImg(UserDto udto) {
 		System.out.println("addPrfImg");
 		String res;
@@ -89,6 +95,11 @@ public class UserDao implements UserIDao {
 		else
 			res= "failed";
 		return res;
+	}
+	
+	@Override
+	public void deletePrfImg(String uId) {
+		sqlSession.update("deletePrfImg",uId);
 	}
 
 	@Override
@@ -122,6 +133,11 @@ public class UserDao implements UserIDao {
 			result = "failed";
 		
 		return result;
+	}
+
+	@Override
+	public void resign(String uId) {
+		sqlSession.delete("resign",uId);
 	}
 
 }

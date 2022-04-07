@@ -23,4 +23,10 @@ public interface UserIDao {
 	public String pwcheck(String uId);
 	
 	public String modifyPw(String Npw, String uId);
+	
+	public void resign(String uId);
+	
+	public String getolduPrfImg(String uId);
+	
+	public void deletePrfImg(String uId);
 }

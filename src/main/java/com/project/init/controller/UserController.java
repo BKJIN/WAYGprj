@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -71,6 +72,7 @@ public class UserController {
 			return "join-failed";
 	}
 	
+	//회원가입시 이메일 중복체크
 	@RequestMapping(value="/user/emailCheck") //왜 포스트 방식은 안돼?
 	@ResponseBody
 	public int emailCheck(@RequestParam("id") String id) {
@@ -81,6 +83,7 @@ public class UserController {
 		return res;
 	}
 	
+	//회원가입시 닉네임 중복체크
 	@RequestMapping(value="/user/nickCheck")
 	@ResponseBody
 	public int nickCheck(@RequestParam("nick") String nick) {
@@ -90,20 +93,8 @@ public class UserController {
 		System.out.println(res);
 		return res;
 	}
-	
-//	@RequestMapping(value="/processLogin", method = RequestMethod.GET)
-//	public ModelAndView processLogin(
-//			@RequestParam(value = "error", required = false) String error) {
-//		System.out.println("processLogin");
-//		ModelAndView model = new ModelAndView();
-//		if(error != null && error !="" ) { //로그인시 에러발생하면 security에서 요청(값은 1)
-//			model.addObject("error", "아이디와 비밀번호를 다시 확인해주세요.");
-//			System.out.println(error);
-//		}
-//		model.setViewName("index");
-//		return model;
-//	}
-	
+		
+	//로그인 실패 및 로그아웃시
 	@RequestMapping(value="/processLogin")
 	public String processLogin(@RequestParam(value="error", required = false) String error, @RequestParam(value="logout", required = false) String logout, Model model) {
 		System.out.println("processLogin");
@@ -140,14 +131,16 @@ public class UserController {
 		return "/user/myPage";
 	}
 	
+	//프로필사진 등록
 	@RequestMapping("/user/add_PrfImg")
 	public String add_PrfImg(MultipartHttpServletRequest mtpRequest, HttpServletRequest request, Model model) {
 		System.out.println("add_PrfImg");
+		String olduPrfImg = udao.getolduPrfImg(Constant.username); //이미 DB에 저장돼있는 이미지사진 이름 가져오기
 		String uPrfImg = null; //DB저장용 파일명
 		
 		MultipartFile mf = mtpRequest.getFile("pImg");
-		String path = "C:/ecl/workspaceWEB/WAYGprj/src/main/webapp/resources/profileImg/";
-		String path1 = "C:/ecl/apache-tomcat-9.0.56/wtpwebapps/WAYGprj/resources/profileImg/";
+		String path = "C:/ecl/workspace/project_init/src/main/webapp/resources/profileImg/";
+		String path1 = "C:/ecl/apache-tomcat-9.0.56/wtpwebapps/project_init/resources/profileImg/";
 		String originFileName = mf.getOriginalFilename();
 		long prename = System.currentTimeMillis();
 		long fileSize = mf.getSize();
@@ -172,22 +165,49 @@ public class UserController {
 			try {
 				mf.transferTo(new File(safeFile));
 				mf.transferTo(new File(safeFile1));
+				
+				//기존 저장돼있던 사진 삭제
+				File file = new File(path + olduPrfImg);
+				File file1 = new File(path1 + olduPrfImg);
+				if(file.exists()) {
+					file.delete();
+				}
+				if(file1.exists()) {
+					file1.delete();
+				}
 			}
 			catch(Exception e) {
 				e.getMessage();
 			}
-//			model.addAttribute("fileName", uPrfImg);
-//			request.setAttribute("path", path);
-//			request.setAttribute("path1", path1);
-//			request.setAttribute("uPrfImg", uPrfImg);
 			return "redirect:/user/myPage";
-			//return "redirect:/user/myPage";
 		}
 		else {
-			return "/user/myPage";
+			return "redirect:/user/myPage";
 		}
 	}
+	
+	@RequestMapping("/user/eraseImg")
+	public String eraseImg() {
+		System.out.println("eraseImg");
+		String olduPrfImg = udao.getolduPrfImg(Constant.username);
+		udao.deletePrfImg(Constant.username);
 		
+		//기존 저장돼있던 사진 삭제
+		String path = "C:/ecl/workspace/project_init/src/main/webapp/resources/profileImg/";
+		String path1 = "C:/ecl/apache-tomcat-9.0.56/wtpwebapps/project_init/resources/profileImg/";
+		File file = new File(path + olduPrfImg);
+		File file1 = new File(path1 + olduPrfImg);
+		if(file.exists()) {
+			file.delete();
+		}
+		if(file1.exists()) {
+			file1.delete();
+		}
+		
+		return "redirect:/user/myPage";
+	}
+	
+	//마이페이지 수정
 	@RequestMapping("/user/modifyMyPage")
 	@ResponseBody
 	public String modifyMyPage(@RequestParam(value="userNick") String userNick, @RequestParam(value="userBio") String userProfileMsg, @RequestParam(value="userPst") String userPst, @RequestParam(value="userAddr1") String userAddress1, @RequestParam(value="userAddr2") String userAddress2, HttpServletRequest request, Model model) {
@@ -205,14 +225,15 @@ public class UserController {
 			return "not-modified";
 	}
 	
+	//비밀번호 변경
 	@RequestMapping(value="/user/modifyPw", method=RequestMethod.POST, produces = "application/text; charset=UTF8")
 	@ResponseBody
 	public String modifyPw(HttpServletRequest request, HttpServletResponse response, Model model) {
 		System.out.println("modifyPw");
-		String Crpw = request.getParameter("crpw");
-		String upw = udao.pwcheck(Constant.username);
-		passwordEncoder = new BCryptPasswordEncoder();
-		if(passwordEncoder.matches(Crpw, upw)) {
+		String Crpw = request.getParameter("crpw"); //form에서 받은 pw
+		String upw = udao.pwcheck(Constant.username); //암호화된 pw
+		passwordEncoder = new BCryptPasswordEncoder(); 
+		if(passwordEncoder.matches(Crpw, upw)) { //form에서 받은 pw와 암호화된 pw 비교
 			mcom = new ModifyPwCommand();
 			mcom.execute(request, model);
 			String result = (String) request.getAttribute("result");
@@ -225,6 +246,31 @@ public class UserController {
 			return "curPwDoesNotMatch";
 		}
 		
+	}
+	
+	//회원탈퇴시 비밀번호 확인
+	@RequestMapping(value="/user/chkPwForResig", method=RequestMethod.POST, produces = "application/text; charset=UTF8")
+	@ResponseBody
+	public String chkPwForResig(HttpServletRequest request, HttpServletResponse response, Model model) {
+		System.out.println("chkPwForResig");
+		String RgPw = request.getParameter("rgPw");
+		String upw = udao.pwcheck(Constant.username);
+		passwordEncoder = new BCryptPasswordEncoder();
+		if(passwordEncoder.matches(RgPw, upw)) {
+			return "Correct-pw";
+		} else {
+			return "Incorrect-pw";
+		}
+		
+	}
+	
+	//회원탈퇴
+	@RequestMapping(value="/user/resignation")
+	public String resignation() {
+		System.out.println("resignation");
+		udao.resign(Constant.username);
+		SecurityContextHolder.clearContext(); //회원탈퇴시 로그아웃 위해
+		return "redirect:/";
 	}
 
 }
