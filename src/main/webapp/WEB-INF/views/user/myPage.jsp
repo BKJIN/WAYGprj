@@ -42,6 +42,25 @@
 <%@ include file="../includes/header.jsp" %>
 
 <div class="container" style="margin-top:90px; margin-bottom:20px;">
+	<!-- 회원정보 변경시 모달 -->
+	<!-- modal button -->
+	<input id="modalBtn" type="hidden" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal" value="modal">
+	<!-- modal창 -->
+	<div class="modal fade" id="myModal" role="dialog">
+		<div class="modal-dialog modal-dialog-centered modal-sm text-center">
+			<div class="modal-content">
+				<div class="modal-header bg-light">
+					<h4 class="modal-title">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WAYG</h4>
+				</div>
+				<div class="modal-body bg-light">
+					<h5>회원정보가 변경되었습니다.</h5>
+				</div>
+				<div class="modal-footer bg-light">
+					<button id="closeBtn" type="button" class="btn btn-default btn-success" data-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
 	<form action="add_PrfImg?${_csrf.parameterName}=${_csrf.token}" method="POST" enctype="multipart/form-data">
 		<div class="d-flex justify-content-center">
 			<c:choose>
@@ -72,7 +91,7 @@
 	</form>
 	<div class="form-group">
 		<label for="userProfileMsg">BIO</label>
-		<textarea class="form-control border border-dark" id="userProfileMsg" name="uPrfMsg" rows="5" disabled></textarea>
+		<textarea class="form-control border border-dark" id="userProfileMsg" name="uPrfMsg" rows="5" disabled>${myPageInfo.userProfileMsg}</textarea>
 	</div>
 	<div class="form-group">
 		<label for="userEmail">EMAIL</label>
@@ -155,7 +174,15 @@ $(document).ready(function(){
 		$("input[name='uAddr1']").attr("disabled",false);
 		$("input[name='uAddr2']").attr("disabled",false);
 		$("#searchPst").css("display","inline");
+		
 	});
+		//Bio가 change되면 ajax로 보내 업데이트 되게 하기 위해
+		var mdfBio = false;
+		console.log(mdfBio)
+		$("textarea[name='uPrfMsg']").change(function(){
+			mdfBio = true;
+			console.log(mdfBio)
+		});
 	
 	$("#modified").click(function(){
 		var userNick = $("#inputUserNick").val();
@@ -163,9 +190,33 @@ $(document).ready(function(){
 		var userPst = $("#userPst").val();
 		var userAddr1 = $("#userAddr1").val();
 		var userAddr2 = $("#userAddr2").val();
-		var allData = {"userBio":userBio,"userPst":userPst,"userAddr1":userAddr1,"userAddr2":userAddr2};
-		console.log(userNick)
+		var allData = {"userNick":userNick, "userBio":userBio, "userPst":userPst, "userAddr1":userAddr1, "userAddr2":userAddr2};
 		
+		//mdfBio변수를 따로 둔 이유는 내용에 엔터가 포함되면 자바스크립트 오류 발생
+		if(userNick == "${myPageInfo.userNick}" && mdfBio == false && userPst == "${myPageInfo.userPst}" && userAddr1 == "${myPageInfo.userAddress1}" && userAddr2 == "${myPageInfo.userAddress2}") {
+			location.reload();
+		}else {
+			$.ajax({
+				type:"GET",
+				url : "modifyMyPage",
+				data: allData,
+				success:function(data){
+					if(data.search("modified") > -1) {
+						$("#modalBtn").trigger("click");
+						$("#closeBtn").click(function(event){
+							event.preventDefault();
+							location.reload();
+						});
+					} else {
+						$(".modal-body").text("다시 시도해 주세요."); //회원정보 변경 실패
+						$("modalBtn").trigger("click");
+					}
+				},
+				error:function() {
+					alert("회원정보수정 에러 입니다. 다시 시도해 주세요.");
+				}
+			});
+		}
 	});
 });
 

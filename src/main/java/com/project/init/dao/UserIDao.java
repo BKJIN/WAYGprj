@@ -18,5 +18,5 @@ public interface UserIDao {
 	
 	public String addPrfImg(UserDto udto);
 	
-	
+	public String mdfMyPage(UserDto udto);
 }

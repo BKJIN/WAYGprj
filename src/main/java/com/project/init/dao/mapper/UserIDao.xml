@@ -33,4 +33,8 @@
 	<update id="addPrfImg" parameterType="com.project.init.dto.UserDto">
 		update userinfo set userprofileimg = #{userProfileImg} where useremail = #{userEmail}
 	</update>
+	
+	<update id="mdfMyPage" parameterType="com.project.init.dto.UserDto">
+		update userinfo set usernick = #{userNick}, userpst = #{userPst}, useraddress1 = #{userAddress1}, userprofilemsg = #{userProfileMsg}, useraddress2 = #{userAddress2} where useremail = #{userEmail}
+	</update>
 </mapper>

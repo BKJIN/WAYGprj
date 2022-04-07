@@ -25,6 +25,7 @@ import org.springframework.web.servlet.ModelAndView;
 import com.project.init.command.AddPrfImgCommand;
 import com.project.init.command.ICommand;
 import com.project.init.command.JoinCommand;
+import com.project.init.command.MdfMyPageCommand;
 import com.project.init.command.MypageCommand;
 import com.project.init.dao.UserDao;
 import com.project.init.dto.UserDto;
@@ -103,11 +104,16 @@ public class UserController {
 //	}
 	
 	@RequestMapping(value="/processLogin")
-	public String processLogin(@RequestParam(value="error") String error,Model model) {
+	public String processLogin(@RequestParam(value="error", required = false) String error, @RequestParam(value="logout", required = false) String logout, Model model) {
 		System.out.println("processLogin");
 		if(error != null && error !="") {
 			model.addAttribute("error", "아이디와 비밀번호를 다시 확인해주세요.");
 			System.out.println(error);
+		}
+		
+		if(logout != null && logout != "") {
+			Constant.username = "";
+			System.out.println("logged out");
 		}
 		return "/index";
 	}
@@ -179,10 +185,26 @@ public class UserController {
 		else {
 			return "/user/myPage";
 		}
+	}
 		
-		
+	@RequestMapping("/user/modifyMyPage")
+	@ResponseBody
+	public String modifyMyPage(@RequestParam(value="userNick") String userNick, @RequestParam(value="userBio") String userProfileMsg, @RequestParam(value="userPst") String userPst, @RequestParam(value="userAddr1") String userAddress1, @RequestParam(value="userAddr2") String userAddress2, HttpServletRequest request, Model model) {
+		System.out.println("modifyMyPage");
+		int UserPst = Integer.parseInt(userPst);
+		UserDto udto = new UserDto(Constant.username, null, userNick, null, 0, null, UserPst, userAddress1, null, userProfileMsg, null, null, null, null, null, userAddress2);
+		request.setAttribute("udto", udto);
+		mcom = new MdfMyPageCommand();
+		mcom.execute(request, model);
+		String result = (String) request.getAttribute("result");
+		System.out.println(result);
+		if(result.equals("success"))
+			return "modified";
+		else
+			return "not-modified";
 		
 		
 	}
+	
 
 }

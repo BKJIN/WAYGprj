@@ -91,4 +91,16 @@ public class UserDao implements UserIDao {
 		return res;
 	}
 
+	@Override
+	public String mdfMyPage(UserDto udto) {
+		System.out.println("UserDao_mdfMyPage");
+		String res;
+		int result = sqlSession.update("mdfMyPage",udto);
+		if(result == 1)
+			res = "success";
+		else
+			res = "failed";
+		return res;
+	}
+
 }
