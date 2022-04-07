@@ -37,4 +37,12 @@
 	<update id="mdfMyPage" parameterType="com.project.init.dto.UserDto">
 		update userinfo set usernick = #{userNick}, userpst = #{userPst}, useraddress1 = #{userAddress1}, userprofilemsg = #{userProfileMsg}, useraddress2 = #{userAddress2} where useremail = #{userEmail}
 	</update>
+	
+	<select id="pwcheck" parameterType="String" resultType="String">
+		select userpw from userinfo where useremail = #{uId}
+	</select>
+	
+	<update id="modifyPw" parameterType="com.project.init.dto.UserDto">
+		update userinfo set userpw = #{userPw} where useremail = #{userEmail}
+	</update>
 </mapper>

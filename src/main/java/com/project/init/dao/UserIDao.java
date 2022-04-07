@@ -19,4 +19,8 @@ public interface UserIDao {
 	public String addPrfImg(UserDto udto);
 	
 	public String mdfMyPage(UserDto udto);
+	
+	public String pwcheck(String uId);
+	
+	public String modifyPw(String Npw, String uId);
 }
