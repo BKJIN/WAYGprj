@@ -1,4 +1,4 @@
-package com.project.init.controller;
+package com.project.init.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;

@@ -58,13 +58,17 @@
 					<h4 class="modal-title">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WAYG</h4>
 				</div>
 				<div class="modal-body bg-light">
-					<form action="modifyPw" id="modifyPwForm" method="post" style="display:none">
+					<form action="chkPwForMdf" id="chkPwForMdf" method="post" style="display:none">
 						<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
 						<div class="form-group">
 							<label for="curPw">Current password</label>
 							<input type="password" class="form-control" id="curPw" name="crpw" autocomplete="off"/>
 							<div class="form-group" style="visibility:hidden; color:red; font-size:14px;" id="curPwError">현재 비밀번호가 일치하지 않습니다.</div>
 						</div>
+						<input type="submit" value="확인" class="btn btn-sm btn-primary"/>
+					</form>
+					<form action="modifyPw" id="modifyPwForm" method="post" style="display:none">
+						<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}" />
 						<div class="form-group">
 							<label for="newPw">New password</label>
 							<input type="password" class="form-control"  id="newPw" name="npw" autocomplete="off" maxlength="16"/>
@@ -132,16 +136,14 @@
 		</div>
 		<div class="d-flex justify-content-center">
 			<div id="userNick">${myPageInfo.userNick}</div>
-			<input id="inputUserNick" type="text" value="${myPageInfo.userNick}" style="display:none; text-align:center; height:36px;" onkeyup="checkNickName()" autocomplete="off" maxlength="20">
+			<input id="inputUserNick" type="text" value="${myPageInfo.userNick}" style="display:none; text-align:center;" onkeyup="checkNickName()" autocomplete="off" maxlength="20">
 		</div>
 		<div class="d-flex justify-content-center mt-1">
 			<div class="userNick-validation validation" style="text-align:center;">
   			</div>
-			<div id="imgBtn" class="btn btn-sm btn-primary" style="height:32px;">
-				<label for="prfImg">
-					Profile Image
-				</label>
-			</div>
+			<label for="prfImg" id="imgBtn" class="btn btn-sm btn-primary" >
+				Profile Image
+			</label>
 		</div>
 		<input type="file" class="form-control" id="prfImg" name="pImg" accept="image/*" onchange="clicksubmit()" style="display:none;">
 		<button id="submitImg" type="submit" class="btn btn-primary" style="display:none;">submit</button>
@@ -201,7 +203,7 @@
 console.log('${fileName}');
 
 //유효성 검사 통과유무 변수
-var chkNick = false;
+var chkNick = true; //닉네임 input에 keyup이벤트 발생하지 않으면 true
 var chkPw1 = false;
 var chkPw2 = false;
 
@@ -284,13 +286,21 @@ $(document).ready(function(){
 		$("#imgBtn").css("display","none");
 		
 	});
-		//Bio가 change되면 ajax로 보내 업데이트 되게 하기 위해
-		var mdfBio = false;
+	
+	//input type="text"가 form안에 들어있어서 엔터누르면 submit되기땜에 방지하기 위해
+	$("#inputUserNick").keydown(function() {
+	    if (event.keyCode === 13) {
+	        event.preventDefault();
+	    }
+	});
+		
+	//Bio가 change되면 ajax로 보내 업데이트 되게 하기 위해
+	var mdfBio = false;
+	console.log(mdfBio)
+	$("textarea[name='uPrfMsg']").change(function(){
+		mdfBio = true;
 		console.log(mdfBio)
-		$("textarea[name='uPrfMsg']").change(function(){
-			mdfBio = true;
-			console.log(mdfBio)
-		});
+	});
 	
 	$("#modified").click(function(){
 		var userNick = $("#inputUserNick").val();
@@ -329,10 +339,32 @@ $(document).ready(function(){
 		}
 	});
 	
-	//비밀번호 변경 버튼 클릭시 모달창 비밀번호변경 UI로 바뀜
+	//비밀번호 변경 버튼 클릭시 모달창 비밀번호입력 UI로 바뀜
 	$("#modifyPw").click(function(){
-		$("#modifyPwForm").css("display","inline");
+		$("#chkPwForMdf").css("display","inline");
 		$("#modalBtn").trigger("click");
+	});
+	
+	//비밀번호 변경 버튼 -> 확인 버튼 클릭시
+	$("#chkPwForMdf").submit(function(e){
+		e.preventDefault();
+		$.ajax({
+			type : $("#chkPwForMdf").attr("method"),
+			url : $("#chkPwForMdf").attr("action"),
+			data : $("#chkPwForMdf").serialize(),
+			success : function(data){
+				if(data.search("Correct-pw") > -1) {
+					$("#chkPwForMdf").css("display","none");
+					$("#modifyPwForm").css("display","inline");
+				} else {
+					//비밀번호가 일치하지 않습니다. 보이게
+					$("#curPwError").css("visibility","visible");
+				}
+			},
+			error : function() {
+				alert("비밀번호 확인 에러. 다시 시도해 주세요.");
+			}
+		});
 	});
 	
 	//1차 비밀번호 유효성검사
@@ -372,7 +404,7 @@ $(document).ready(function(){
         }
     });
 	
-	//모달창안에 비밀번호 변경 버튼 클릭시
+	//비밀번호 변경 버튼 -> 확인 버튼 -> 비밀번호 변경 버튼 클릭시
 	$("#modifyPwForm").submit(function(e){
 		e.preventDefault();
 		if(!chkPw1) {
@@ -391,12 +423,8 @@ $(document).ready(function(){
 						location.reload();
 					});
 				}
-				else if(data.search("pw-not-modified") > -1){
+				else { 
 					alert("비밀번호 변경에 실패했습니다. 다시 시도해 주세요.");
-				}
-				else {
-					//현재 비밀번호가 일치하지 않습니다. 보이게
-					$("#curPwError").css("visibility","visible");
 				}
 			},
 			error : function() {
@@ -410,6 +438,7 @@ $(document).ready(function(){
 	$('#myModal').on('hidden.bs.modal',function(e) {
 		$("#curPwError").css("visibility","hidden");
 		$("#curPw").val("");
+		$("#modifyPwForm").css("display","none");
 		$("#newPw").val("");
 		$("#cfrmPw").val("");
 		$("#cfrmPw").attr("readonly",true);

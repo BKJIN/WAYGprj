@@ -139,8 +139,8 @@ public class UserController {
 		String uPrfImg = null; //DB저장용 파일명
 		
 		MultipartFile mf = mtpRequest.getFile("pImg");
-		String path = "C:/ecl/workspace/project_init/src/main/webapp/resources/profileImg/";
-		String path1 = "C:/ecl/apache-tomcat-9.0.56/wtpwebapps/project_init/resources/profileImg/";
+		String path = "C:/ecl/workspaceWEB/WAYGprj/src/main/webapp/resources/profileImg/";
+		String path1 = "C:/ecl/apache-tomcat-9.0.56/wtpwebapps/WAYGprj/resources/profileImg/";
 		String originFileName = mf.getOriginalFilename();
 		long prename = System.currentTimeMillis();
 		long fileSize = mf.getSize();
@@ -193,8 +193,8 @@ public class UserController {
 		udao.deletePrfImg(Constant.username);
 		
 		//기존 저장돼있던 사진 삭제
-		String path = "C:/ecl/workspace/project_init/src/main/webapp/resources/profileImg/";
-		String path1 = "C:/ecl/apache-tomcat-9.0.56/wtpwebapps/project_init/resources/profileImg/";
+		String path = "C:/ecl/workspaceWEB/WAYGprj/src/main/webapp/resources/profileImg/";
+		String path1 = "C:/ecl/apache-tomcat-9.0.56/wtpwebapps/WAYGprj/resources/profileImg/";
 		File file = new File(path + olduPrfImg);
 		File file1 = new File(path1 + olduPrfImg);
 		if(file.exists()) {
@@ -225,15 +225,27 @@ public class UserController {
 			return "not-modified";
 	}
 	
+	//비밀번호 변경 전 비밀번호 확인
+	@RequestMapping(value="/user/chkPwForMdf", method=RequestMethod.POST, produces = "application/text; charset=UTF8")
+	@ResponseBody
+	public String chkPwForMdf(HttpServletRequest request, HttpServletResponse response, Model model) {
+		System.out.println("chkPwForMdf");
+		String Crpw = request.getParameter("crpw");
+		String upw = udao.pwcheck(Constant.username);
+		passwordEncoder = new BCryptPasswordEncoder();
+		if(passwordEncoder.matches(Crpw, upw)) {
+			return "Correct-pw";
+		} else {
+			return "Incorrect-pw";
+		}
+			
+	}
+	
 	//비밀번호 변경
 	@RequestMapping(value="/user/modifyPw", method=RequestMethod.POST, produces = "application/text; charset=UTF8")
 	@ResponseBody
 	public String modifyPw(HttpServletRequest request, HttpServletResponse response, Model model) {
 		System.out.println("modifyPw");
-		String Crpw = request.getParameter("crpw"); //form에서 받은 pw
-		String upw = udao.pwcheck(Constant.username); //암호화된 pw
-		passwordEncoder = new BCryptPasswordEncoder(); 
-		if(passwordEncoder.matches(Crpw, upw)) { //form에서 받은 pw와 암호화된 pw 비교
 			mcom = new ModifyPwCommand();
 			mcom.execute(request, model);
 			String result = (String) request.getAttribute("result");
@@ -242,10 +254,6 @@ public class UserController {
 				return "pw-modified";
 			else
 				return "pw-not-modified";
-		} else {
-			return "curPwDoesNotMatch";
-		}
-		
 	}
 	
 	//회원탈퇴시 비밀번호 확인
