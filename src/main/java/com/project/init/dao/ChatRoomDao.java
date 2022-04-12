@@ -31,10 +31,10 @@ public class ChatRoomDao {
 		return chatRoomDtoMap.get(id);
 	}
 	
-	public ChatRoomDto createChatRoomDto(String name) {
-		ChatRoomDto room = ChatRoomDto.create(name);
-		chatRoomDtoMap.put(room.getRoomId(), room);
-		
-		return room;
-	}
+//	public ChatRoomDto createChatRoomDto(String name) {
+//		ChatRoomDto room = ChatRoomDto.create(name);
+//		chatRoomDtoMap.put(room.getRoomId(), room);
+//		
+//		return room;
+//	}
 }

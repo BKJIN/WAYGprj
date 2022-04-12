@@ -29,4 +29,8 @@ public interface UserIDao {
 	public String getolduPrfImg(String uId);
 	
 	public void deletePrfImg(String uId);
+	
+	public UserDto searchNick(String nick);
+	
+	public String searchImg(String uId);
 }

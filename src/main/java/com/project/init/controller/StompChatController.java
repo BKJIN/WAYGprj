@@ -23,16 +23,17 @@ public class StompChatController {
 	}
 	
 	
-	@MessageMapping(value="/chat/enter")
-	public void enter(ChatMessageDto message) {
-		message.setMessage(message.getWriter() + "님이 채팅방에 참여하였습니다.");
-		template.convertAndSend("/sub/chat/room/" + message.getRoomId(), message);
-		System.out.println("채팅입장");
-	}
+//	@MessageMapping(value="/chat/enter")
+//	public void enter(ChatMessageDto message) {
+//		message.setMessage(message.getWriter() + "님이 채팅방에 참여하였습니다.");
+//		template.convertAndSend("/sub/chat/room/" + message.getRoomId(), message);
+//		System.out.println("채팅입장");
+//	}
 	
 	@MessageMapping(value="/chat/message")
 	public void message(ChatMessageDto message) {
-		template.convertAndSend("/sub/chat/room/" + message.getRoomId(), message);
+		template.convertAndSend("/sub/chat/room/" + message.getM_roomId(), message);
+		//cdao.saveMsg(message);
 		System.out.println("메세지보냄");
 	}
 }

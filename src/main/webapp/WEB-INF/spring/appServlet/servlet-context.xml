@@ -92,6 +92,7 @@
 	<!-- UserDao bean -->
 	<beans:bean name="udao" class="com.project.init.dao.UserDao"></beans:bean>
 	
-	<beans:bean name="cdao" class="com.project.init.dao.ChatRoomDao"></beans:bean>
-	
+	<!-- <beans:bean name="cdao" class="com.project.init.dao.ChatRoomDao"></beans:bean> -->
+	<beans:bean name="cdao" class="com.project.init.dao.ChatDao"></beans:bean>
+
 </beans:beans>

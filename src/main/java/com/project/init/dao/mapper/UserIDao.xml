@@ -57,4 +57,12 @@
 	<delete id="resign" parameterType="string">
 		delete from userinfo where useremail = #{uId}
 	</delete>
+	
+	<select id="searchNick" parameterType="String" resultType="com.project.init.dto.UserDto">
+		select usernick,userprofileimg from userinfo where usernick = #{nick}
+	</select>
+	
+	<select id="searchImg" parameterType="String" resultType="String">
+		select userprofileimg from userinfo where useremail = #{uId}
+	</select>
 </mapper>

@@ -50,7 +50,7 @@
 	$(document).ready(function(){
 		var roomName = "${room.name}";
 		var roomId = "${room.roomId}";
-		var username = "jim";
+		var username = "${uname}";
 		
 		console.log(roomName + ", " + roomId + ", " + username);
 		

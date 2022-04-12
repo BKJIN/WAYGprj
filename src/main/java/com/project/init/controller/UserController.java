@@ -139,8 +139,8 @@ public class UserController {
 		String uPrfImg = null; //DB저장용 파일명
 		
 		MultipartFile mf = mtpRequest.getFile("pImg");
-		String path = "C:/ecl/workspaceWEB/WAYGprj/src/main/webapp/resources/profileImg/";
-		String path1 = "C:/ecl/apache-tomcat-9.0.56/wtpwebapps/WAYGprj/resources/profileImg/";
+		String path = "C:/ecl/workspace/project_init/src/main/webapp/resources/profileImg/";
+		String path1 = "C:/ecl/apache-tomcat-9.0.56/wtpwebapps/project_init/resources/profileImg/";
 		String originFileName = mf.getOriginalFilename();
 		long prename = System.currentTimeMillis();
 		long fileSize = mf.getSize();
@@ -193,8 +193,8 @@ public class UserController {
 		udao.deletePrfImg(Constant.username);
 		
 		//기존 저장돼있던 사진 삭제
-		String path = "C:/ecl/workspaceWEB/WAYGprj/src/main/webapp/resources/profileImg/";
-		String path1 = "C:/ecl/apache-tomcat-9.0.56/wtpwebapps/WAYGprj/resources/profileImg/";
+		String path = "C:/ecl/workspace/project_init/src/main/webapp/resources/profileImg/";
+		String path1 = "C:/ecl/apache-tomcat-9.0.56/wtpwebapps/project_init/resources/profileImg/";
 		File file = new File(path + olduPrfImg);
 		File file1 = new File(path1 + olduPrfImg);
 		if(file.exists()) {

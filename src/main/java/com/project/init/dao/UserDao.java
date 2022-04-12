@@ -140,4 +140,17 @@ public class UserDao implements UserIDao {
 		sqlSession.delete("resign",uId);
 	}
 
+	//메세지페이지 회원 찾기
+	@Override
+	public UserDto searchNick(String nick) {
+		UserDto udto = sqlSession.selectOne("searchNick",nick);
+		return udto;
+	}
+
+	@Override
+	public String searchImg(String uId) {
+		String pubImg = sqlSession.selectOne("searchImg",uId);
+		return pubImg;
+	}
+
 }
