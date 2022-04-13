@@ -135,8 +135,6 @@ alter table chatMessage
  
 ALTER TABLE chatMessage MODIFY m_sendTime DEFAULT NULL;
  
-insert into chatMessage values('7d1f73c1-914c-4723-96d5-2d15d59ddd8b', 'pid6', 'pnick6', 'sid6', 'snick6', '6', 'img', 'img', '5', 'd', 'd' , null);
-
 ALTER TABLE chatmessage
 ADD CONSTRAINT msg_cascade_chat
   FOREIGN KEY (m_roomId)
