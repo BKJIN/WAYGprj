@@ -14,12 +14,16 @@
 	select usernick from userinfo where useremail = #{pubId}
 </select>
 
+<select id="checkChatRoom" parameterType="com.project.init.dto.ChatRoomDto" resultType="int">
+	select count(*) from chatroom where (pubid= #{pubId} and subid= #{subId}) or (pubid= #{subId} and subid= #{pubId})
+</select>
+
 <insert id="createChatRoom" parameterType="com.project.init.dto.ChatRoomDto">
-	insert into chatroom values(#{roomNum},#{roomId},#{pubId},#{subId},#{pubImg},#{subImg},#{pubNick},#{subNick})
+	insert into chatroom values(CHAT_ROOM_SEQ.nextval,#{roomId},#{pubId},#{subId},#{pubImg},#{subImg},#{pubNick},#{subNick})
 </insert>
 
 <select id="chatRoomList" parameterType="String" resultType="com.project.init.dto.ChatRoomDto">
-	select * from chatroom where pubid = #{id} or subid = #{id}
+	select * from chatroom where (pubid = #{id} or subid = #{id}) order by roomNum
 </select>
 
 <select id="getChatRoomDto" parameterType="String" resultType="com.project.init.dto.ChatRoomDto">
@@ -27,8 +31,12 @@
 </select>
 
 <select id="getChatMessageDto" parameterType="String" resultType="com.project.init.dto.ChatMessageDto">
-	select * from chatmessage where m_roomId = #{roomId}
+	select * from chatmessage where m_roomId = #{roomId} order by m_num
 </select>
+
+<insert id="saveMsg" parameterType="com.project.init.dto.ChatMessageDto">
+	insert into chatmessage values (#{m_roomId}, #{m_pubId}, #{m_pubNick}, #{m_subId}, #{m_subNick}, #{m_sendTime}, #{m_pubImg}, #{m_subImg}, CHAT_MSG_SEQ.nextval, #{m_sendId}, #{m_pubMsg, jdbcType = VARCHAR}, #{m_subMsg, jdbcType = VARCHAR})
+</insert>
 	
 </mapper>
 

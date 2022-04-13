@@ -87,7 +87,7 @@ body{margin-top:20px;}
 
 		<div class="card">
 			<div class="row g-0">
-				<div class="col-12 col-lg-5 col-xl-3 border-right" style="max-height:939px; overflow-y:scroll">
+				<div id="searchAndUser" class="col-12 col-lg-5 col-xl-3 border-right" style="max-height:939px; overflow-y:scroll">
 
 					<div class="px-4 d-none d-md-block">
 						<div class="d-flex align-items-center">
@@ -99,39 +99,20 @@ body{margin-top:20px;}
 					
 					<a href="#" id="foundUserInfo" class="list-group-item list-group-item-action border-0" style="display:none;">
 						<button id="createChat" style="all:unset;" class="float-right"><i class="fa-solid fa-message"></i></button>
-						<div class="d-flex align-items-start">	
+						<div class="d-flex align-items-start">
 							<img id="foundUserImg" class="rounded-circle mr-1" width="40" height="40">
 							<div id="foundUserNick" class="flex-grow-1 ml-3">
 							</div>
 						</div>
 					</a>
-
-					<div class="px-4 d-none d-md-block">
-						<div class="d-flex align-items-center">
-							<div class="flex-grow-1">
-								<input type="text" class="form-control my-3" placeholder="Search...">
-							</div>
-						</div>
-					</div>
 					
 					<div id="userList">
 					<c:forEach items="${chatRoomList}" var="dto">
-					<button class="addedUserInfo list-group-item list-group-item-action border-0" style="display:none;">
+					<button class="addedUserInfo ${dto.roomNum} list-group-item list-group-item-action border-0" style="display:none;">
 						<div class="rId" style="display:none;">${dto.roomId}</div>
-						<div class="sId" style="display:none;">${dto.subId}</div>
 						<div class="d-flex align-items-start">
-							<img id="addedUserImgS" src="${dto.subImg}" class="rounded-circle mr-1" width="40" height="40">
-							<div id="addedUserNickS" class="flex-grow-1 ml-3">${dto.subNick}
-							</div>
-						</div>
-					</button>
-					<button class="addedUserInfo list-group-item list-group-item-action border-0" style="display:none;">
-						<div class="rId" style="display:none;">${dto.roomId}</div>
-						<div class="pId" style="display:none;">${dto.pubId}</div>
-						<div class="d-flex align-items-start">
-							<img id="addedUserImgS" src="${dto.pubImg}" class="rounded-circle mr-1" width="40" height="40">
-							<div id="addedUserNickS" class="flex-grow-1 ml-3">${dto.pubNick}
-							</div>
+							<img src="${dto.roomImg}" class="rounded-circle mr-1" width="40" height="40">
+							<div class="addedUserNicks flex-grow-1 ml-3">${dto.chatRoom}</div>
 						</div>
 					</button>
 					</c:forEach>
@@ -139,11 +120,9 @@ body{margin-top:20px;}
 				</div>
 					<hr class="d-block d-lg-none mt-1 mb-0">
 				</div>
-				<div class="col-12 col-lg-7 col-xl-9">
+				<div class="col-12 col-lg-7 col-xl-9 border-left">
 					<div class="py-2 px-4 border-bottom d-none d-lg-block">
-						<div class="d-flex align-items-center py-1">
-							<div id="appOtherImg" class="position-relative">
-							</div>
+						<div id="appOtherImg" class="d-flex align-items-center py-1">
 						</div>
 					</div>
 
@@ -155,7 +134,7 @@ body{margin-top:20px;}
 					<div class="flex-grow-0 py-3 px-4 border-top">
 						<div class="input-group">
 							<input id="msg" type="text" class="form-control" placeholder="Type your message">
-							<button id="button-send" class="btn btn-primary">Send</button>
+							<button id="button-send" class="btn btn-primary" disabled>Send</button>
 						</div>
 					</div>
 
@@ -168,6 +147,10 @@ body{margin-top:20px;}
 <%@ include file="../includes/footer.jsp" %>
 
 <script>
+function check() {
+	console.log("1");
+}
+
 $(document).ready(function() {
 	var userInfo;
 	$("#searchNick").keyup(function(){
@@ -176,9 +159,6 @@ $(document).ready(function() {
 			type : "get",
 			url : "searchNick",
 			data : {nick:val},
-			//async:false,
-			//contentType: "application/json; charset=utf-8;",
-			//dataType: "json",
 			success : function(data) {
 				console.log(data)
 				if(data.userNick != null) {
@@ -196,18 +176,6 @@ $(document).ready(function() {
 	});
 	
 	$("#createChat").click(function() {
-		//$("#userList").append('<a href="#" id="addedUserInfo" class="list-group-item list-group-item-action border-0"><div class="d-flex align-items-start"><img id="addedUserImg" class="rounded-circle mr-1" width="40" height="40"><div id="addedUserNick" class="flex-grow-1 ml-3"></div></div></a>');
-		$("#foundUserInfo").css("display","none");
-		//$("#addedUserImg").attr("src",userInfo.userImg);
-		//$("#addedUserNick").html(userInfo.userNick);
-		//$("#addedUserInfo").css("display","block");
-		str = '<button class="addedUserInfo list-group-item list-group-item-action border-0">';
-		str += '<div class="d-flex align-items-start">';
-		str += '<img src="' + userInfo.userImg + '" class="rounded-circle mr-1" width="40" height="40">';
-		str += '<div class="flex-grow-1 ml-3">' + userInfo.userNick + '</div>';
-		str += '</div></button>';
-		$("#userList").append(str);
-		
 		$.ajax({
 			type : "POST",
 			url : "croom",
@@ -217,10 +185,14 @@ $(document).ready(function() {
 		    	var header = $("meta[name='_csrf_header']").attr('content');
 		    	xhr.setRequestHeader(header, token);
 		    },
-			success: function(roomId) {
-				var divRoomId = '<div style="display:none;">' + roomId + '</div>';
-				console.log(divRoomId)
-				$(".addedUserInfo").prepend(divRoomId);
+			success: function(data) {
+				if(data.search("existRoom") > -1) {
+					alert("이미 채팅방이 존재 합니다.");
+				}
+				else {
+					location.reload();
+				}
+				
 			},error: function() {
 				alert("채팅방 생성 에러입니다. 다시 시도해 주세요.");
 			}
@@ -230,11 +202,9 @@ $(document).ready(function() {
 	
 	var uId = "${uId}";
 	console.log(uId)
-	if($(".pId").html() == uId) {
-		$(".sId").parent().css("display","block");
-	} else {
-		$(".pId").parent().css("display","block");
-	}
+	if("${chatRoomList}" != null) {
+		$(".addedUserInfo").css("display","block");
+	} 
 	
 	var sockJs = new SockJS("/init/chat");
 	var stomp = Stomp.over(sockJs);
@@ -249,8 +219,11 @@ $(document).ready(function() {
 	
 	stomp.connect({}, function(){
 		console.log("STOMP Connection");
-		//$(".addedUserInfo").click(function(){
-		$(document).on("click",".addedUserInfo",function(){		
+		$(".addedUserInfo ${dto.roomNum}").click(function(){
+			$(".addedUserInfo").attr("disabled",true);
+			//$(".addedUserInfo").not(this).css("display","block");
+			$("#searchAndUser").css("visibility","hidden");
+			$("#msgArea").empty();
 			$.ajax({
 				type: "POST",
 				url : "room",
@@ -262,8 +235,6 @@ $(document).ready(function() {
 			    },
 			    success: function(data) {
 			    	console.log("채팅방 입장 성공");
-			    	console.log(data.cdto)
-			    	console.log(data.mdtos[1])
 			    	
 			    	pubId = data.cdto.pubId;
 			    	pubImg = data.cdto.pubImg;
@@ -280,9 +251,12 @@ $(document).ready(function() {
 						str += '<img src="' + otherImg + '" class="rounded-circle mr-1" width="40" height="40">';
 						str += '</div>';
 			    		str += '<div class="flex-grow-1 pl-3">';
-						str += '<strong>' + subNick + '</strong>'
-						str += '</div>'
-						$("#appOtherImg").append(str);
+						str += '<strong>' + subNick + '</strong>';
+						str += '</div>';
+						str += '<button class="exitRoom" style="all:unset; cursor:pointer;">'
+						str += '<i class="fa-solid fa-rectangle-xmark" style="font-size:2rem"></i>';
+						str += '</button>'
+						$("#appOtherImg").empty().append(str);
 			    	} else {
 			    		var otherImg = pubImg;
 			    		var str = '';
@@ -290,22 +264,95 @@ $(document).ready(function() {
 						str += '<img src="' + otherImg + '" class="rounded-circle mr-1" width="40" height="40">';
 						str += '</div>';
 			    		str += '<div class="flex-grow-1 pl-3">';
-						str += '<strong>' + pubNick + '</strong>'
-						str += '</div>'
-						$("#appOtherImg").append(str);
+						str += '<strong>' + pubNick + '</strong>';
+						str += '</div>';
+						str += '<button class="exitRoom" style="all:unset; cursor:pointer;">'
+						str += '<i class="fa-solid fa-rectangle-xmark" style="font-size:2rem"></i>';
+						str += '</button>'
+						$("#appOtherImg").empty().append(str);
 			    	}
 			    	
-			    	//DB 뿌려주는 로직 짜기
+			   		for(var i = 0; i < data.mdtos.length; i++) {
+			   			var str = '';
+						var str1 = '';
+						
+			   			if(uId == data.mdtos[i].m_pubId) {
+							if(data.mdtos[i].m_pubMsg != null) {
+			   					str = '<div class="chat-message-right pb-4">';
+								str += '<div>';
+								str += '<div class="text-muted small text-nowrap mt-2">' + data.mdtos[i].m_sendTime + '</div>';
+								str += '</div>';
+								str += '<div class="flex-shrink-1 bg-light rounded py-2 px-3 mr-3">';
+								str += data.mdtos[i].m_pubMsg;
+								str += '</div>';
+								str += '</div>';
+								$("#msgArea").append(str);
+								$(".chat-messages").scrollTop($(".chat-messages")[0].scrollHeight);
+							}
+							if(data.mdtos[i].m_subMsg != null) {
+								str1 = '<div class="chat-message-left pb-4">';
+								str1 += '<div>';
+								str1 += '<img src="' + data.mdtos[i].m_subImg + '" class="rounded-circle mr-1" width="40" height="40">';
+								str1 += '<div class="text-muted small text-nowrap mt-2">' + data.mdtos[i].m_sendTime + '</div>';
+								str1 += '</div>';
+								str1 += '<div class="flex-shrink-1 bg-light rounded py-2 px-3 ml-3">';
+								str1 += '<div class="font-weight-bold mb-1">' + data.mdtos[i].m_subNick + '</div>';
+								str1 += data.mdtos[i].m_subMsg;
+								str1 += '</div>';
+								str1 += '</div>';
+								$("#msgArea").append(str1);
+								$(".chat-messages").scrollTop($(".chat-messages")[0].scrollHeight);
+							}
+						} else {
+							if(data.mdtos[i].m_subMsg != null) {
+								str = '<div class="chat-message-right pb-4">';
+								str += '<div>';
+								str += '<div class="text-muted small text-nowrap mt-2">' + data.mdtos[i].m_sendTime + '</div>';
+								str += '</div>';
+								str += '<div class="flex-shrink-1 bg-light rounded py-2 px-3 mr-3">';
+								str += data.mdtos[i].m_subMsg;
+								str += '</div>';
+								str += '</div>';
+								$("#msgArea").append(str);
+								$(".chat-messages").scrollTop($(".chat-messages")[0].scrollHeight);
+							}
+							if(data.mdtos[i].m_pubMsg != null) {
+								str1 = '<div class="chat-message-left pb-4">';
+								str1 += '<div>';
+								str1 += '<img src="' + data.mdtos[i].m_pubImg + '" class="rounded-circle mr-1" width="40" height="40">';
+								str1 += '<div class="text-muted small text-nowrap mt-2">' + data.mdtos[i].m_sendTime + '</div>';
+								str1 += '</div>';
+								str1 += '<div class="flex-shrink-1 bg-light rounded py-2 px-3 ml-3">';
+								str1 += '<div class="font-weight-bold mb-1">' + data.mdtos[i].m_pubNick + '</div>';
+								str1 += data.mdtos[i].m_pubMsg;
+								str1 += '</div>';
+								str1 += '</div>';
+								$("#msgArea").append(str1);
+								$(".chat-messages").scrollTop($(".chat-messages")[0].scrollHeight);
+							}
+						}
+			   		}
 			    	
 			    	stomp.subscribe("/sub/chat/room/" + roomId, function(chat) {
 						console.log("메세지 받음");
 						var content = JSON.parse(chat.body);
 						var str = '';
 						var msg;
+						var img;
+						var nick;
+						
 						if(content.m_pubMsg == null) {
 							msg = content.m_subMsg;
 						} else {
 							msg = content.m_pubMsg;
+						}
+						
+						if(uId == pubId) {
+							img = content.m_subImg;
+							nick = content.m_subNick;
+						} else {
+							img = content.m_pubImg;
+							nick = content.m_pubNick;
 						}
 						
 						if(uId == content.m_sendId) {
@@ -318,19 +365,21 @@ $(document).ready(function() {
 							str += '</div>';
 							str += '</div>';
 							$("#msgArea").append(str);
+							$(".chat-messages").scrollTop($(".chat-messages")[0].scrollHeight);
 						}
 						else {
 							str = '<div class="chat-message-left pb-4">';
 							str += '<div>';
-							str += '<img src="' + content.m_subImg + '" class="rounded-circle mr-1" width="40" height="40">';
+							str += '<img src="' + img + '" class="rounded-circle mr-1" width="40" height="40">';
 							str += '<div class="text-muted small text-nowrap mt-2">' + content.m_sendTime + '</div>';
 							str += '</div>';
 							str += '<div class="flex-shrink-1 bg-light rounded py-2 px-3 ml-3">';
-							str += '<div class="font-weight-bold mb-1">' + content.m_subNick + '</div>';
+							str += '<div class="font-weight-bold mb-1">' + nick + '</div>';
 							str += msg;
 							str += '</div>';
 							str += '</div>';
 							$("#msgArea").append(str);
+							$(".chat-messages").scrollTop($(".chat-messages")[0].scrollHeight);
 						}
 			
 					});
@@ -344,7 +393,12 @@ $(document).ready(function() {
 			
 	});
 	
+	$(document).on("click",".exitRoom",function(){
+		location.reload();
+	});
+		
 	$("#button-send").on("click", function(e){
+		$("#msg").focus();
 		var msg = document.getElementById("msg");
 		var today = new Date();
 		var sendTime = today.toLocaleString();
@@ -356,8 +410,23 @@ $(document).ready(function() {
 		}
 		msg.value = '';
 	});
+	
+	$('#msg').keypress(function(event){
+		if ( event.which == 13 ) {
+	     	$('#button-send').click();
+	        return false;
+	     }
+	});
+	
+	$("#msg").keyup(function(){
+		if($("#msg").val()=='')
+			$("#button-send").attr("disabled",true);
+		else
+			$("#button-send").attr("disabled",false);
+	});
 				
 });
+
 </script>
 </body>
 </html>

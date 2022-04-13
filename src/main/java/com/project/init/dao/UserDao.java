@@ -1,6 +1,7 @@
 package com.project.init.dao;
 
 import java.util.Calendar;
+import java.util.Map;
 
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -142,8 +143,8 @@ public class UserDao implements UserIDao {
 
 	//메세지페이지 회원 찾기
 	@Override
-	public UserDto searchNick(String nick) {
-		UserDto udto = sqlSession.selectOne("searchNick",nick);
+	public UserDto searchNick(Map<String, Object> map) {
+		UserDto udto = sqlSession.selectOne("searchNick",map);
 		return udto;
 	}
 

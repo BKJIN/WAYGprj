@@ -9,7 +9,7 @@ public class ChatMessageDto {
 	private String m_sendTime;
 	private String m_pubImg;
 	private String m_subImg;
-	private String m_num;
+	private int m_num;
 	private String m_sendId;
 	private String m_pubMsg;
 	private String m_subMsg;
@@ -19,7 +19,7 @@ public class ChatMessageDto {
 	}
 
 	public ChatMessageDto(String m_roomId, String m_pubId, String m_pubNick, String m_subId, String m_subNick,
-			String m_sendTime, String m_pubImg, String m_subImg, String m_num, String m_sendId, String m_pubMsg,
+			String m_sendTime, String m_pubImg, String m_subImg, int m_num, String m_sendId, String m_pubMsg,
 			String m_subMsg) {
 		super();
 		this.m_roomId = m_roomId;
@@ -100,11 +100,11 @@ public class ChatMessageDto {
 		this.m_subImg = m_subImg;
 	}
 
-	public String getM_num() {
+	public int getM_num() {
 		return m_num;
 	}
 
-	public void setM_num(String m_num) {
+	public void setM_num(int m_num) {
 		this.m_num = m_num;
 	}
 

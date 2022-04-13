@@ -70,7 +70,7 @@
 			</li>
 			
 			<li class="mr-4 msg">
-				<a href="chat/rooms">
+				<a href="chat/messages">
 					<i class="menu-icon fa-regular fa-comment-dots"></i>
 				</a>
 			</li>

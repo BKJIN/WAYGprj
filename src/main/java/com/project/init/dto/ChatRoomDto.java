@@ -11,6 +11,9 @@ public class ChatRoomDto {
 	private String pubNick;
 	private String subNick;
 	
+	private String chatRoom;
+	private String roomImg;
+	
 	public ChatRoomDto() {
 		super();
 	}
@@ -90,6 +93,22 @@ public class ChatRoomDto {
 
 	public void setSubNick(String subNick) {
 		this.subNick = subNick;
+	}
+
+	public String getChatRoom() {
+		return chatRoom;
+	}
+
+	public void setChatRoom(String chatRoom) {
+		this.chatRoom = chatRoom;
+	}
+
+	public String getRoomImg() {
+		return roomImg;
+	}
+
+	public void setRoomImg(String roomImg) {
+		this.roomImg = roomImg;
 	}
 	
 	

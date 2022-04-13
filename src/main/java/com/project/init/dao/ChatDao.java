@@ -23,7 +23,13 @@ public class ChatDao implements ChatIDao {
 		String pubNick =sqlSession.selectOne("nickFromId",pubId);
 		return pubNick;
 	}
-
+	
+	@Override
+	public int checkChatRoom(ChatRoomDto chkroom) {
+		int num = sqlSession.selectOne("checkChatRoom",chkroom);
+		return num;
+	}
+	
 	@Override
 	public void createChatRoom(ChatRoomDto crdto) {
 		sqlSession.insert("createChatRoom",crdto);
@@ -46,6 +52,10 @@ public class ChatDao implements ChatIDao {
 		ArrayList<ChatMessageDto> result = (ArrayList)sqlSession.selectList("getChatMessageDto",roomId);
 		return result;
 	}
-	
+
+	@Override
+	public void saveMsg(ChatMessageDto message) {
+		sqlSession.insert("saveMsg",message);
+	}
 
 }

@@ -2,6 +2,7 @@ package com.project.init.controller;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
@@ -32,13 +33,6 @@ import com.project.init.util.Constant;
 @Controller
 @RequestMapping(value = "/chat")
 public class ChatRoomController {
-	
-//	private final ChatRoomDao cdao;
-//	
-//	public ChatRoomController(ChatRoomDao cdao) {
-//		//super();
-//		this.cdao = cdao;
-//	}
 	
 	private ChatDao cdao;
 	@Autowired
@@ -71,30 +65,12 @@ public class ChatRoomController {
 		System.out.println("searchNick");
 		String nick = request.getParameter("nick");
 		System.out.println(nick);
-		UserDto result = udao.searchNick(nick);
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("nick", nick);
+		map.put("uId", Constant.username);
+		UserDto result = udao.searchNick(map);
 		return result;
 	}
-	
-	//채팅방 목록 조회
-//	@GetMapping(value="/rooms")
-//	public ModelAndView rooms() {
-//		
-//		System.out.println("# All Chat Rooms");
-//		
-//		ModelAndView mv = new ModelAndView("/chat/rooms");
-//		
-//		mv.addObject("list", cdao.findAllRooms());
-//		
-//		return mv;
-//	}
-	
-	//채팅방 개설
-//	@GetMapping(value="/croom")
-//	public String create(@RequestParam String name, RedirectAttributes rttr) {
-//		System.out.println("# Create Chat Room, name: " + name);
-//		rttr.addFlashAttribute("roomName", cdao.createChatRoomDto(name));
-//		return "redirect:/chat/rooms";
-//	}
 	
 	@PostMapping(value="/croom")
 	@ResponseBody
@@ -102,23 +78,19 @@ public class ChatRoomController {
 		System.out.println("# Create Chat Room, subNick: " + subNick + ", subImg: " + subImg);
 		String subId = cdao.idFromNick(subNick);
 		String pubId = Constant.username;
-		String pubNick = cdao.nickFromId(pubId);
-		String roomId = UUID.randomUUID().toString();
-		String pubImg = "/init/resources/profileImg/" + udao.searchImg(Constant.username);
-		ChatRoomDto crdto = new ChatRoomDto(0,roomId,pubId,subId,pubImg,subImg,pubNick,subNick);
-		cdao.createChatRoom(crdto);
-		return roomId;
+		ChatRoomDto chkroom = new ChatRoomDto(0,null,pubId,subId,null,null,null,null);
+		int num = cdao.checkChatRoom(chkroom);
+		if(num == 1) {
+			return "existRoom";
+		} else {
+			String pubNick = cdao.nickFromId(pubId);
+			String roomId = UUID.randomUUID().toString();
+			String pubImg = "/init/resources/profileImg/" + udao.searchImg(Constant.username);
+			ChatRoomDto crdto = new ChatRoomDto(0,roomId,pubId,subId,pubImg,subImg,pubNick,subNick);
+			cdao.createChatRoom(crdto);
+			return "success";
+		}
 	}
-	
-	//채팅방 조회
-//	@GetMapping("/room")
-//	public ModelAndView getRoom(@RequestParam String roomId) {
-//		System.out.println("# get Chat Room, roomID : " + roomId);
-//		ModelAndView mv = new ModelAndView("/chat/room");
-//		mv.addObject("room",cdao.findRoomById(roomId));
-//		mv.addObject("uname",Constant.username);
-//		return mv;
-//	}
 	
 	@PostMapping("/room")
 	@ResponseBody
