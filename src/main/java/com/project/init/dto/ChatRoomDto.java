@@ -10,6 +10,10 @@ public class ChatRoomDto {
 	private String subImg;
 	private String pubNick;
 	private String subNick;
+	private int pubExitNum;
+	private int subExitNum;
+	private String pubExit;
+	private String subExit;
 	
 	private String chatRoom;
 	private String roomImg;
@@ -19,7 +23,7 @@ public class ChatRoomDto {
 	}
 
 	public ChatRoomDto(int roomNum, String roomId, String pubId, String subId, String pubImg, String subImg,
-			String pubNick, String subNick) {
+			String pubNick, String subNick, int pubExitNum, int subExitNum, String pubExit, String subExit) {
 		super();
 		this.roomNum = roomNum;
 		this.roomId = roomId;
@@ -29,6 +33,10 @@ public class ChatRoomDto {
 		this.subImg = subImg;
 		this.pubNick = pubNick;
 		this.subNick = subNick;
+		this.pubExitNum = pubExitNum;
+		this.subExitNum = subExitNum;
+		this.pubExit = pubExit;
+		this.subExit = subExit;
 	}
 
 	public int getRoomNum() {
@@ -110,6 +118,37 @@ public class ChatRoomDto {
 	public void setRoomImg(String roomImg) {
 		this.roomImg = roomImg;
 	}
-	
+
+	public int getPubExitNum() {
+		return pubExitNum;
+	}
+
+	public void setPubExitNum(int pubExitNum) {
+		this.pubExitNum = pubExitNum;
+	}
+
+	public int getSubExitNum() {
+		return subExitNum;
+	}
+
+	public void setSubExitNum(int subExitNum) {
+		this.subExitNum = subExitNum;
+	}
+
+	public String getPubExit() {
+		return pubExit;
+	}
+
+	public void setPubExit(String pubExit) {
+		this.pubExit = pubExit;
+	}
+
+	public String getSubExit() {
+		return subExit;
+	}
+
+	public void setSubExit(String subExit) {
+		this.subExit = subExit;
+	}
 	
 }

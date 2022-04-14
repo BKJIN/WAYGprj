@@ -78,7 +78,7 @@ public class ChatRoomController {
 		System.out.println("# Create Chat Room, subNick: " + subNick + ", subImg: " + subImg);
 		String subId = cdao.idFromNick(subNick);
 		String pubId = Constant.username;
-		ChatRoomDto chkroom = new ChatRoomDto(0,null,pubId,subId,null,null,null,null);
+		ChatRoomDto chkroom = new ChatRoomDto(0,null,pubId,subId,null,null,null,null,0,0,null,null);
 		int num = cdao.checkChatRoom(chkroom);
 		if(num == 1) {
 			return "existRoom";
@@ -86,7 +86,7 @@ public class ChatRoomController {
 			String pubNick = cdao.nickFromId(pubId);
 			String roomId = UUID.randomUUID().toString();
 			String pubImg = "/init/resources/profileImg/" + udao.searchImg(Constant.username);
-			ChatRoomDto crdto = new ChatRoomDto(0,roomId,pubId,subId,pubImg,subImg,pubNick,subNick);
+			ChatRoomDto crdto = new ChatRoomDto(0,roomId,pubId,subId,pubImg,subImg,pubNick,subNick,0,0,null,null);
 			cdao.createChatRoom(crdto);
 			return "success";
 		}
@@ -96,6 +96,7 @@ public class ChatRoomController {
 	@ResponseBody
 	public HashMap<String, Object> enterRoom(@RequestParam String roomId) {
 		System.out.println("# enter Chat Room, roomID : " + roomId);
+		cdao.enterRoom(roomId);
 		ChatRoomDto cdto = cdao.getChatRoomDto(roomId);
 		ArrayList<ChatMessageDto> mdtos = cdao.getChatMessageDto(roomId);
 		HashMap<String, Object> map = new HashMap<String, Object>();
@@ -103,5 +104,39 @@ public class ChatRoomController {
 		map.put("cdto", cdto);
 		System.out.println(map);
 		return map;
+	}
+	
+	@PostMapping("/rmvRoomByPub")
+	@ResponseBody
+	public String rmvRoomByPub(@RequestParam String roomId) {
+		System.out.println("rmvRoomByPub");
+		ChatRoomDto dto = cdao.otherExitChk(roomId);
+		if(dto.getPubExit() == "t" || dto.getSubExit() == "t") {
+			cdao.removeChatRoom(roomId);
+			return "success";
+		} else {
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("roomId", roomId);
+			map.put("uId", Constant.username);
+			cdao.pubExitRoom(map);
+			return "success";
+		}
+	}
+
+	@PostMapping("/rmvRoomBySub")
+	@ResponseBody
+	public String rmvRoomBySub(@RequestParam String roomId) {
+		System.out.println("rmvRoomBySub");
+		ChatRoomDto dto = cdao.otherExitChk(roomId);
+		if(dto.getPubExit() == "t" || dto.getSubExit() == "t") {
+			cdao.removeChatRoom(roomId);
+			return "success";
+		} else {
+			Map<String, Object> map = new HashMap<String, Object>();
+			map.put("roomId", roomId);
+			map.put("uId", Constant.username);
+			cdao.subExitRoom(map);
+			return "success";
+		}
 	}
 }

@@ -37,6 +37,25 @@
 <insert id="saveMsg" parameterType="com.project.init.dto.ChatMessageDto">
 	insert into chatmessage values (#{m_roomId}, #{m_pubId}, #{m_pubNick}, #{m_subId}, #{m_subNick}, #{m_sendTime}, #{m_pubImg}, #{m_subImg}, CHAT_MSG_SEQ.nextval, #{m_sendId}, #{m_pubMsg, jdbcType = VARCHAR}, #{m_subMsg, jdbcType = VARCHAR})
 </insert>
+
+<select id="otherExitChk" parameterType="String" resultType="com.project.init.dto.ChatRoomDto">
+	select pubexit,subexit from chatroom where roomid = #{roomId}
+</select>
+
+<delete id="removeChatRoom" parameterType="String">
+	delete from chatroom where roomid = #{roomId}
+</delete>
+
+<update id="pubExitRoom" parameterType="Map">
+	update chatroom set pubExitNum=(select max(m_num) from chatmessage where roomid = #{roomId}), pubExit = 't' where roomid= #{roomId}
+</update>
+
+<update id="subExitRoom" parameterType="Map">
+	update chatroom set subExitNum=(select max(m_num) from chatmessage where roomid = #{roomId}), subExit = 't' where roomid= #{roomId}
+</update>
 	
+<update id="enterRoom" parameterType="String">
+	update chatroom set pubexit = 'f' , subexit = 'f' where roomid = #{roomId}
+</update>
 </mapper>
 

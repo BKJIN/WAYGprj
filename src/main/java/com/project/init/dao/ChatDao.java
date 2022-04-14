@@ -1,6 +1,7 @@
 package com.project.init.dao;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,6 +57,32 @@ public class ChatDao implements ChatIDao {
 	@Override
 	public void saveMsg(ChatMessageDto message) {
 		sqlSession.insert("saveMsg",message);
+	}
+
+	@Override
+	public ChatRoomDto otherExitChk(String roomId) {
+		ChatRoomDto dto = sqlSession.selectOne("otherExitChk",roomId);
+		return dto;
+	}
+
+	@Override
+	public void removeChatRoom(String roomId) {
+		sqlSession.delete("removeChatRoom",roomId);
+	}
+
+	@Override
+	public void pubExitRoom(Map<String, Object> map) {
+		sqlSession.update("pubExitRoom",map);
+	}
+
+	@Override
+	public void subExitRoom(Map<String, Object> map) {
+		sqlSession.update("subExitRoom",map);
+	}
+
+	@Override
+	public void enterRoom(String roomId) {
+		sqlSession.update("enterRoom",roomId);
 	}
 
 }

@@ -16,16 +16,24 @@ public class ChatRoomListCommand implements ICommand {
 	public void execute(HttpServletRequest request, Model model) {
 		ChatDao cdao = Constant.cdao;
 		ArrayList<ChatRoomDto> dtos = cdao.chatRoomList(Constant.username);
-		for (int i=0; i<dtos.size(); i++) {
+		for (int i= (dtos.size() -1); i > -1; i--) {
 			ChatRoomDto dto = dtos.get(i);
 			System.out.println(dto.getPubId() + ", " + dto.getSubId());
 			System.out.println(Constant.username);
 			if(dto.getPubId().equals(Constant.username)) {
+				if(dto.getPubExit().equals("t")) {
+					dtos.remove(i);
+				} else {
 				dto.setChatRoom(dto.getSubNick());
 				dto.setRoomImg(dto.getSubImg());
+				}	
 			} else {
+				if(dto.getSubExit().equals("t")) {
+					dtos.remove(i);
+				} else {
 				dto.setChatRoom(dto.getPubNick());
 				dto.setRoomImg(dto.getPubImg());
+				}
 			}
 			System.out.println(dto.getChatRoom() + ", " + dto.getRoomImg());
 		}

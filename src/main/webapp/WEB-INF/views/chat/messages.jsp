@@ -26,36 +26,44 @@
 <title>Insert title here</title>
 <style>
 body{margin-top:20px;}
-
-.chat-online {
-    color: #34ce57
+.card {
+	overflow: hidden;
 }
-
-.chat-offline {
-    color: #e4606d
+.addedUserInfo {
+	border: none;
+	border-top: 1px solid rgba(0,0,0,.125);
+	border-bottom: 1px solid rgba(0,0,0,.125);
+	border-radius: 0;
 }
-
+#searchAndUser {
+	padding-right: 0px;
+	overflow-x: hidden;
+	max-height:939px; 
+	overflow-y:auto;
+	height: expression( this.scrollHeight > 938 ? "939px" : "auto" ); /*IE에서 max-height */
+}
+#searchNick {
+	border: none;
+	border-radius: 0;
+	border-bottom: 2px solid rgba(0,0,0,.125);
+}
 .chat-messages {
     display: flex;
     flex-direction: column;
     max-height: 800px;
     height:800px;
-    overflow-y: scroll
-}
-
-.chat-message-left,
-.chat-message-right {
-    display: flex;
-    flex-shrink: 0
+    overflow-y: auto;
+    height: expression( this.scrollHeight > 799 ? "800px" : "auto" ); /*IE에서 max-height */
 }
 
 .chat-message-left {
     margin-right: auto;
+    display: flex;
+    flex-shrink: 0
 }
-
 .chat-message-right {
-    flex-direction: row-reverse;
     margin-left: auto;
+    display: inline-block;
 }
 .py-3 {
     padding-top: 1rem!important;
@@ -74,6 +82,10 @@ body{margin-top:20px;}
 #appOtherImg {
 	height:50px;
 }
+
+#inputMsg {
+	visibility: hidden;
+}
 </style>
 </head>
 <body>
@@ -82,14 +94,28 @@ body{margin-top:20px;}
 
 <main class="content" style="margin-top:90px; margin-bottom:50px;">
     <div class="container p-0">
-
-		<h1 class="h3 mb-3">Messages</h1>
-
+    
+	<!-- modal창 -->
+	<div class="modal fade" id="rmvModal" role="dialog">
+		<div class="modal-dialog modal-dialog-centered modal-sm text-center">
+			<div class="modal-content">
+				<div class="modal-header bg-light">
+					<h4 class="modal-title">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;WAYG</h4>
+				</div>
+				<div class="modal-body bg-light">
+					대화방을 나가면 모든 대화내용이 삭제되며 다시 복구 할 수 없습니다.
+				</div>
+				<div class="modal-footer bg-light">
+					<button id="agreeRmv" type="button" class="btn btn-default btn-danger">나가기</button>
+					<button id="rmvCloseBtn" type="button" class="btn btn-default btn-success" data-dismiss="modal">취소</button>
+				</div>
+			</div>
+		</div>
+	</div>
 		<div class="card">
 			<div class="row g-0">
-				<div id="searchAndUser" class="col-12 col-lg-5 col-xl-3 border-right" style="max-height:939px; overflow-y:scroll">
-
-					<div class="px-4 d-none d-md-block">
+				<div id="searchAndUser" class="col-12 col-lg-5 col-xl-3">
+					<div class="px-4">
 						<div class="d-flex align-items-center">
 							<div class="flex-grow-1">
 								<input id="searchNick" type="text" class="form-control my-3" placeholder="회원 검색">
@@ -97,7 +123,7 @@ body{margin-top:20px;}
 						</div>
 					</div>
 					
-					<a href="#" id="foundUserInfo" class="list-group-item list-group-item-action border-0" style="display:none;">
+					<a href="#" id="foundUserInfo" class="list-group-item list-group-item-action " style="display:none;">
 						<button id="createChat" style="all:unset;" class="float-right"><i class="fa-solid fa-message"></i></button>
 						<div class="d-flex align-items-start">
 							<img id="foundUserImg" class="rounded-circle mr-1" width="40" height="40">
@@ -106,13 +132,16 @@ body{margin-top:20px;}
 						</div>
 					</a>
 					
-					<div id="userList">
+					<div id="userList" class="list-group d-flex justify-content-around">
 					<c:forEach items="${chatRoomList}" var="dto">
-					<button class="addedUserInfo ${dto.roomNum} list-group-item list-group-item-action border-0" style="display:none;">
+					<button class="addedUserInfo ${dto.roomNum} list-group-item list-group-item-action mb-1" style="display:none; position:relative;">
 						<div class="rId" style="display:none;">${dto.roomId}</div>
-						<div class="d-flex align-items-start">
+						<div id="addedUserLook" class="d-flex align-items-center">
 							<img src="${dto.roomImg}" class="rounded-circle mr-1" width="40" height="40">
-							<div class="addedUserNicks flex-grow-1 ml-3">${dto.chatRoom}</div>
+							<div class="addedUserNicks flex-grow-1 ml-3">
+								<b>${dto.chatRoom}</b>
+							</div>
+							<div class="badge bg-success">5</div>
 						</div>
 					</button>
 					</c:forEach>
@@ -120,8 +149,8 @@ body{margin-top:20px;}
 				</div>
 					<hr class="d-block d-lg-none mt-1 mb-0">
 				</div>
-				<div class="col-12 col-lg-7 col-xl-9 border-left">
-					<div class="py-2 px-4 border-bottom d-none d-lg-block">
+				<div class="col-12 col-lg-7 col-xl-9 border-left px-0">
+					<div id="chatroom-title" class="py-2 px-4 border-bottom bg-light">
 						<div id="appOtherImg" class="d-flex align-items-center py-1">
 						</div>
 					</div>
@@ -131,7 +160,7 @@ body{margin-top:20px;}
 						</div>
 					</div>
 
-					<div class="flex-grow-0 py-3 px-4 border-top">
+					<div id="inputMsg" class="flex-grow-0 py-3 px-4 border-top">
 						<div class="input-group">
 							<input id="msg" type="text" class="form-control" placeholder="Type your message">
 							<button id="button-send" class="btn btn-primary" disabled>Send</button>
@@ -150,7 +179,6 @@ body{margin-top:20px;}
 function check() {
 	console.log("1");
 }
-
 $(document).ready(function() {
 	var userInfo;
 	$("#searchNick").keyup(function(){
@@ -222,6 +250,7 @@ $(document).ready(function() {
 		$(".addedUserInfo ${dto.roomNum}").click(function(){
 			$(".addedUserInfo").attr("disabled",true);
 			//$(".addedUserInfo").not(this).css("display","block");
+			$("#inputMsg").css("visibility", "visible");
 			$("#searchAndUser").css("visibility","hidden");
 			$("#msgArea").empty();
 			$.ajax({
@@ -253,8 +282,11 @@ $(document).ready(function() {
 			    		str += '<div class="flex-grow-1 pl-3">';
 						str += '<strong>' + subNick + '</strong>';
 						str += '</div>';
-						str += '<button class="exitRoom" style="all:unset; cursor:pointer;">'
-						str += '<i class="fa-solid fa-rectangle-xmark" style="font-size:2rem"></i>';
+						str += '<button class="exitRoom mr-3" style="all:unset; cursor:pointer;">'
+						str += '<i class="fa-solid fa-list" style="font-size:2rem"></i>';
+						str += '</button>'
+						str += '<button class="removeRoom" style="all:unset; cursor:pointer;" data-toggle="modal" data-target="#rmvModal" value="modal">'
+						str += '<i class="fa-solid fa-person-walking-dashed-line-arrow-right" style="font-size:2rem"></i>';
 						str += '</button>'
 						$("#appOtherImg").empty().append(str);
 			    	} else {
@@ -266,8 +298,11 @@ $(document).ready(function() {
 			    		str += '<div class="flex-grow-1 pl-3">';
 						str += '<strong>' + pubNick + '</strong>';
 						str += '</div>';
-						str += '<button class="exitRoom" style="all:unset; cursor:pointer;">'
-						str += '<i class="fa-solid fa-rectangle-xmark" style="font-size:2rem"></i>';
+						str += '<button class="exitRoom mr-3" style="all:unset; cursor:pointer;">'
+						str += '<i class="fa-solid fa-list" style="font-size:2rem"></i>';
+						str += '</button>'
+						str += '<button class="removeRoom" style="all:unset; cursor:pointer;" data-toggle="modal" data-target="#rmvModal" value="modal">'
+						str += '<i class="fa-solid fa-person-walking-dashed-line-arrow-right" style="font-size:2rem"></i>';
 						str += '</button>'
 						$("#appOtherImg").empty().append(str);
 			    	}
@@ -278,14 +313,12 @@ $(document).ready(function() {
 						
 			   			if(uId == data.mdtos[i].m_pubId) {
 							if(data.mdtos[i].m_pubMsg != null) {
-			   					str = '<div class="chat-message-right pb-4">';
-								str += '<div>';
-								str += '<div class="text-muted small text-nowrap mt-2">' + data.mdtos[i].m_sendTime + '</div>';
-								str += '</div>';
-								str += '<div class="flex-shrink-1 bg-light rounded py-2 px-3 mr-3">';
+			   					str = '<div class="chat-message-right">';
+								str += '<div class="bg-light rounded py-2 px-3" style="text-align:right;">';
 								str += data.mdtos[i].m_pubMsg;
 								str += '</div>';
 								str += '</div>';
+								str += '<div class="text-muted small text-nowrap pb-4" style="text-align:right;">' + data.mdtos[i].m_sendTime + '</div>';
 								$("#msgArea").append(str);
 								$(".chat-messages").scrollTop($(".chat-messages")[0].scrollHeight);
 							}
@@ -305,14 +338,12 @@ $(document).ready(function() {
 							}
 						} else {
 							if(data.mdtos[i].m_subMsg != null) {
-								str = '<div class="chat-message-right pb-4">';
-								str += '<div>';
-								str += '<div class="text-muted small text-nowrap mt-2">' + data.mdtos[i].m_sendTime + '</div>';
-								str += '</div>';
-								str += '<div class="flex-shrink-1 bg-light rounded py-2 px-3 mr-3">';
+								str = '<div class="chat-message-right">';
+								str += '<div class="bg-light rounded py-2 px-3" style="text-align:right;">';
 								str += data.mdtos[i].m_subMsg;
 								str += '</div>';
 								str += '</div>';
+								str += '<div class="text-muted small text-nowrap pb-4" style="text-align:right;">' + data.mdtos[i].m_sendTime + '</div>';
 								$("#msgArea").append(str);
 								$(".chat-messages").scrollTop($(".chat-messages")[0].scrollHeight);
 							}
@@ -356,14 +387,12 @@ $(document).ready(function() {
 						}
 						
 						if(uId == content.m_sendId) {
-							str = '<div class="chat-message-right pb-4">';
-							str += '<div>';
-							str += '<div class="text-muted small text-nowrap mt-2">' + content.m_sendTime + '</div>';
-							str += '</div>';
-							str += '<div class="flex-shrink-1 bg-light rounded py-2 px-3 mr-3">';
+							str = '<div class="chat-message-right">';
+							str += '<div class="bg-light rounded py-2 px-3" style="text-align:right;">';
 							str += msg;
 							str += '</div>';
 							str += '</div>';
+							str += '<div class="text-muted small text-nowrap pb-4" style="text-align:right;">' + content.m_sendTime + '</div>';
 							$("#msgArea").append(str);
 							$(".chat-messages").scrollTop($(".chat-messages")[0].scrollHeight);
 						}
@@ -396,7 +425,48 @@ $(document).ready(function() {
 	$(document).on("click",".exitRoom",function(){
 		location.reload();
 	});
-		
+	
+	$("#agreeRmv").click(function(){
+		if(uId == pubId) {
+		$.ajax({
+			type : "POST",
+			url: "rmvRoomByPub",
+			data: {roomId:roomId},
+			beforeSend: function(xhr){
+		    	var token = $("meta[name='_csrf']").attr('content');
+		    	var header = $("meta[name='_csrf_header']").attr('content');
+		    	xhr.setRequestHeader(header, token);
+		    },
+		    success: function(data) {
+		    	location.reload();
+		    },
+		    error: function() {
+		    	alert("채팅방 나가기 에러입니다. 다시 시도해주세요.");
+		    }
+			
+		});
+			
+		} else {
+			$.ajax({
+				type : "POST",
+				url: "rmvRoomBySub",
+				data: {roomId:roomId},
+				beforeSend: function(xhr){
+			    	var token = $("meta[name='_csrf']").attr('content');
+			    	var header = $("meta[name='_csrf_header']").attr('content');
+			    	xhr.setRequestHeader(header, token);
+			    },
+			    success: function(data) {
+			    	location.reload();
+			    },
+			    error: function() {
+			    	alert("채팅방 나가기 에러입니다. 다시 시도해주세요.");
+			    }
+				
+			});
+		}
+	});
+	
 	$("#button-send").on("click", function(e){
 		$("#msg").focus();
 		var msg = document.getElementById("msg");
@@ -426,7 +496,6 @@ $(document).ready(function() {
 	});
 				
 });
-
 </script>
 </body>
 </html>
