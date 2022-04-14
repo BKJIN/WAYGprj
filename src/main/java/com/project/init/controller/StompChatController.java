@@ -29,6 +29,7 @@ public class StompChatController {
 		template.convertAndSend("/sub/chat/room/" + message.getM_roomId(), message);
 		ChatDao cdao = Constant.cdao;
 		cdao.saveMsg(message);
+		cdao.enterRoom(message.getM_roomId()); //메세지를 보내면 pubExit,subExit 둘 다 f로 update
 		System.out.println("메세지보냄");
 	}
 }

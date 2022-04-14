@@ -9,6 +9,9 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,7 +26,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.project.init.command.ChatRoomListCommand;
 import com.project.init.command.ICommand;
 import com.project.init.dao.ChatDao;
-import com.project.init.dao.ChatRoomDao;
 import com.project.init.dao.UserDao;
 import com.project.init.dto.ChatMessageDto;
 import com.project.init.dto.ChatRoomDto;
@@ -55,7 +57,10 @@ public class ChatRoomController {
 		System.out.println("messages");
 		mcom = new ChatRoomListCommand();
 		mcom.execute(request, model);
-		request.setAttribute("uId", Constant.username);
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		User user = (User)authentication.getPrincipal();
+		System.out.println(user.getUsername()+"입니다.");
+		request.setAttribute("uId", user.getUsername());
 		return "chat/messages";
 	}
 	
@@ -67,7 +72,9 @@ public class ChatRoomController {
 		System.out.println(nick);
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("nick", nick);
-		map.put("uId", Constant.username);
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		User user = (User)authentication.getPrincipal();
+		map.put("uId", user.getUsername());
 		UserDto result = udao.searchNick(map);
 		return result;
 	}
@@ -77,18 +84,24 @@ public class ChatRoomController {
 	public String create(@RequestParam String subNick, @RequestParam String subImg ) {
 		System.out.println("# Create Chat Room, subNick: " + subNick + ", subImg: " + subImg);
 		String subId = cdao.idFromNick(subNick);
-		String pubId = Constant.username;
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		User user = (User)authentication.getPrincipal();
+		String pubId = user.getUsername();
 		ChatRoomDto chkroom = new ChatRoomDto(0,null,pubId,subId,null,null,null,null,0,0,null,null);
-		int num = cdao.checkChatRoom(chkroom);
-		if(num == 1) {
-			return "existRoom";
-		} else {
+		ChatRoomDto dto = cdao.checkChatRoom(chkroom);
+		if(dto == null) {
 			String pubNick = cdao.nickFromId(pubId);
 			String roomId = UUID.randomUUID().toString();
-			String pubImg = "/init/resources/profileImg/" + udao.searchImg(Constant.username);
+			String pubImg = "/init/resources/profileImg/" + udao.searchImg(user.getUsername());
 			ChatRoomDto crdto = new ChatRoomDto(0,roomId,pubId,subId,pubImg,subImg,pubNick,subNick,0,0,null,null);
 			cdao.createChatRoom(crdto);
 			return "success";
+		}
+		else if(dto.getPubExit().equals("t") || dto.getSubExit().equals("t")) {
+			cdao.enterRoom(dto.getRoomId());
+			return "상대방이 방존재";
+		} else {
+			return "existRoom";			
 		}
 	}
 	
@@ -96,14 +109,22 @@ public class ChatRoomController {
 	@ResponseBody
 	public HashMap<String, Object> enterRoom(@RequestParam String roomId) {
 		System.out.println("# enter Chat Room, roomID : " + roomId);
-		cdao.enterRoom(roomId);
 		ChatRoomDto cdto = cdao.getChatRoomDto(roomId);
-		ArrayList<ChatMessageDto> mdtos = cdao.getChatMessageDto(roomId);
-		HashMap<String, Object> map = new HashMap<String, Object>();
-		map.put("mdtos", mdtos);
-		map.put("cdto", cdto);
-		System.out.println(map);
-		return map;
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		User user = (User)authentication.getPrincipal();
+		if(cdto.getPubId().equals(user.getUsername())) {
+			ArrayList<ChatMessageDto> mdtos = cdao.getChatMsgDtoPub(roomId);
+			HashMap<String, Object> map = new HashMap<String, Object>();
+			map.put("mdtos", mdtos);
+			map.put("cdto", cdto);
+			return map;
+		} else {
+			ArrayList<ChatMessageDto> mdtos = cdao.getChatMsgDtoSub(roomId);
+			HashMap<String, Object> map = new HashMap<String, Object>();
+			map.put("mdtos", mdtos);
+			map.put("cdto", cdto);
+			return map;
+		}
 	}
 	
 	@PostMapping("/rmvRoomByPub")
@@ -111,14 +132,18 @@ public class ChatRoomController {
 	public String rmvRoomByPub(@RequestParam String roomId) {
 		System.out.println("rmvRoomByPub");
 		ChatRoomDto dto = cdao.otherExitChk(roomId);
-		if(dto.getPubExit() == "t" || dto.getSubExit() == "t") {
+		if(dto.getPubExit().equals("t") || dto.getSubExit().equals("t")) {
 			cdao.removeChatRoom(roomId);
+			System.out.println("채팅방 완전 삭제");
 			return "success";
 		} else {
 			Map<String, Object> map = new HashMap<String, Object>();
 			map.put("roomId", roomId);
-			map.put("uId", Constant.username);
+			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+			User user = (User)authentication.getPrincipal();
+			map.put("uId", user.getUsername());
 			cdao.pubExitRoom(map);
+			System.out.println("pub채팅방 나감");
 			return "success";
 		}
 	}
@@ -128,14 +153,19 @@ public class ChatRoomController {
 	public String rmvRoomBySub(@RequestParam String roomId) {
 		System.out.println("rmvRoomBySub");
 		ChatRoomDto dto = cdao.otherExitChk(roomId);
-		if(dto.getPubExit() == "t" || dto.getSubExit() == "t") {
+		//문자열 비교시는 ==이 아닌 .equals()
+		if(dto.getPubExit().equals("t") || dto.getSubExit().equals("t")) {
 			cdao.removeChatRoom(roomId);
+			System.out.println("채팅방 완전 삭제");
 			return "success";
 		} else {
 			Map<String, Object> map = new HashMap<String, Object>();
 			map.put("roomId", roomId);
-			map.put("uId", Constant.username);
+			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+			User user = (User)authentication.getPrincipal();
+			map.put("uId", user.getUsername());
 			cdao.subExitRoom(map);
+			System.out.println("sub채팅방 나감");
 			return "success";
 		}
 	}

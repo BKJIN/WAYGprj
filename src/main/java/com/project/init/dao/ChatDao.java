@@ -26,9 +26,9 @@ public class ChatDao implements ChatIDao {
 	}
 	
 	@Override
-	public int checkChatRoom(ChatRoomDto chkroom) {
-		int num = sqlSession.selectOne("checkChatRoom",chkroom);
-		return num;
+	public ChatRoomDto checkChatRoom(ChatRoomDto chkroom) {
+		ChatRoomDto dto = sqlSession.selectOne("checkChatRoom",chkroom);
+		return dto;
 	}
 	
 	@Override
@@ -49,8 +49,14 @@ public class ChatDao implements ChatIDao {
 	}
 
 	@Override
-	public ArrayList<ChatMessageDto> getChatMessageDto(String roomId) {
-		ArrayList<ChatMessageDto> result = (ArrayList)sqlSession.selectList("getChatMessageDto",roomId);
+	public ArrayList<ChatMessageDto> getChatMsgDtoPub(String roomId) {
+		ArrayList<ChatMessageDto> result = (ArrayList)sqlSession.selectList("getChatMsgDtoPub",roomId);
+		return result;
+	}
+
+	@Override
+	public ArrayList<ChatMessageDto> getChatMsgDtoSub(String roomId) {
+		ArrayList<ChatMessageDto> result = (ArrayList)sqlSession.selectList("getChatMsgDtoSub",roomId);
 		return result;
 	}
 

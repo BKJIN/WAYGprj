@@ -141,7 +141,7 @@ body{margin-top:20px;}
 							<div class="addedUserNicks flex-grow-1 ml-3">
 								<b>${dto.chatRoom}</b>
 							</div>
-							<div class="badge bg-success">5</div>
+							<!-- <div class="badge bg-success">5</div> -->
 						</div>
 					</button>
 					</c:forEach>

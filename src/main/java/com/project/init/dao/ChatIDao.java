@@ -11,7 +11,7 @@ public interface ChatIDao {
 	
 	public String nickFromId(String pubId);
 
-	public int checkChatRoom(ChatRoomDto chkroom);
+	public ChatRoomDto checkChatRoom(ChatRoomDto chkroom);
 	
 	public void createChatRoom(ChatRoomDto crdto);
 	
@@ -19,7 +19,9 @@ public interface ChatIDao {
 	
 	public ChatRoomDto getChatRoomDto(String roomId);
 
-	public ArrayList<ChatMessageDto> getChatMessageDto(String roomId);
+	public ArrayList<ChatMessageDto> getChatMsgDtoPub(String roomId);
+
+	public ArrayList<ChatMessageDto> getChatMsgDtoSub(String roomId);
 	
 	public void saveMsg(ChatMessageDto message);
 	

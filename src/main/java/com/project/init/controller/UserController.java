@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -119,7 +120,9 @@ public class UserController {
 		Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
 		String auth = authorities.toString(); //role을 얻어서 문자열로 변환
 		System.out.println(auth); //[ROLE_USER] 형태
-		udao.userVisit(Constant.username); //로그인 날짜 업데이트
+		Authentication authentication1 = SecurityContextHolder.getContext().getAuthentication();
+		User user = (User)authentication1.getPrincipal();
+		udao.userVisit(user.getUsername()); //로그인 날짜 업데이트
 		return "/index";
 	}
 	
@@ -135,7 +138,9 @@ public class UserController {
 	@RequestMapping("/user/add_PrfImg")
 	public String add_PrfImg(MultipartHttpServletRequest mtpRequest, HttpServletRequest request, Model model) {
 		System.out.println("add_PrfImg");
-		String olduPrfImg = udao.getolduPrfImg(Constant.username); //이미 DB에 저장돼있는 이미지사진 이름 가져오기
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		User user = (User)authentication.getPrincipal();
+		String olduPrfImg = udao.getolduPrfImg(user.getUsername()); //이미 DB에 저장돼있는 이미지사진 이름 가져오기
 		String uPrfImg = null; //DB저장용 파일명
 		
 		MultipartFile mf = mtpRequest.getFile("pImg");
@@ -151,8 +156,7 @@ public class UserController {
 		String safeFile1 = path1 + prename + originFileName;
 		
 		uPrfImg = prename + originFileName;
-		
-		UserDto udto = new UserDto(Constant.username,null,null,null,0,null,0,null,uPrfImg,null,null,null,null,null,null,null);
+		UserDto udto = new UserDto(user.getUsername(),null,null,null,0,null,0,null,uPrfImg,null,null,null,null,null,null,null);
 		mtpRequest.setAttribute("udto", udto);
 		mcom = new AddPrfImgCommand();
 		
@@ -189,8 +193,10 @@ public class UserController {
 	@RequestMapping("/user/eraseImg")
 	public String eraseImg() {
 		System.out.println("eraseImg");
-		String olduPrfImg = udao.getolduPrfImg(Constant.username);
-		udao.deletePrfImg(Constant.username);
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		User user = (User)authentication.getPrincipal();
+		String olduPrfImg = udao.getolduPrfImg(user.getUsername());
+		udao.deletePrfImg(user.getUsername());
 		
 		//기존 저장돼있던 사진 삭제
 		String path = "C:/ecl/workspace/project_init/src/main/webapp/resources/profileImg/";
@@ -213,7 +219,9 @@ public class UserController {
 	public String modifyMyPage(@RequestParam(value="userNick") String userNick, @RequestParam(value="userBio") String userProfileMsg, @RequestParam(value="userPst") String userPst, @RequestParam(value="userAddr1") String userAddress1, @RequestParam(value="userAddr2") String userAddress2, HttpServletRequest request, Model model) {
 		System.out.println("modifyMyPage");
 		int UserPst = Integer.parseInt(userPst);
-		UserDto udto = new UserDto(Constant.username, null, userNick, null, 0, null, UserPst, userAddress1, null, userProfileMsg, null, null, null, null, null, userAddress2);
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		User user = (User)authentication.getPrincipal();
+		UserDto udto = new UserDto(user.getUsername(), null, userNick, null, 0, null, UserPst, userAddress1, null, userProfileMsg, null, null, null, null, null, userAddress2);
 		request.setAttribute("udto", udto);
 		mcom = new MdfMyPageCommand();
 		mcom.execute(request, model);
@@ -231,7 +239,9 @@ public class UserController {
 	public String chkPwForMdf(HttpServletRequest request, HttpServletResponse response, Model model) {
 		System.out.println("chkPwForMdf");
 		String Crpw = request.getParameter("crpw");
-		String upw = udao.pwcheck(Constant.username);
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		User user = (User)authentication.getPrincipal();
+		String upw = udao.pwcheck(user.getUsername());
 		passwordEncoder = new BCryptPasswordEncoder();
 		if(passwordEncoder.matches(Crpw, upw)) {
 			return "Correct-pw";
@@ -262,7 +272,9 @@ public class UserController {
 	public String chkPwForResig(HttpServletRequest request, HttpServletResponse response, Model model) {
 		System.out.println("chkPwForResig");
 		String RgPw = request.getParameter("rgPw");
-		String upw = udao.pwcheck(Constant.username);
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		User user = (User)authentication.getPrincipal();
+		String upw = udao.pwcheck(user.getUsername());
 		passwordEncoder = new BCryptPasswordEncoder();
 		if(passwordEncoder.matches(RgPw, upw)) {
 			return "Correct-pw";
@@ -276,7 +288,9 @@ public class UserController {
 	@RequestMapping(value="/user/resignation")
 	public String resignation() {
 		System.out.println("resignation");
-		udao.resign(Constant.username);
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		User user = (User)authentication.getPrincipal();
+		udao.resign(user.getUsername());
 		SecurityContextHolder.clearContext(); //회원탈퇴시 로그아웃 위해
 		return "redirect:/";
 	}

@@ -2,6 +2,9 @@ package com.project.init.command;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.ui.Model;
 
@@ -21,7 +24,9 @@ public class ModifyPwCommand implements ICommand {
 		Npw = passwordEncoder.encode(Npw_org); //암호화
 		System.out.println(Npw + " size " + Npw.length());
 		
-		String result = udao.modifyPw(Npw,Constant.username);
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		User user = (User)authentication.getPrincipal();
+		String result = udao.modifyPw(Npw,user.getUsername());
 		
 		request.setAttribute("result", result); //controller에서 결과 사용
 	}
