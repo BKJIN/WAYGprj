@@ -91,4 +91,40 @@ public class ChatDao implements ChatIDao {
 		sqlSession.update("enterRoom",roomId);
 	}
 
+	@Override
+	public void addUnReadMsg(ChatMessageDto message) {
+		sqlSession.update("addUnReadMsg",message);
+	}
+
+	@Override
+	public void reSetPUnReadMsg(String roomId) {
+		sqlSession.update("reSetPUnReadMsg",roomId);
+	}
+
+	@Override
+	public void reSetSUnReadMsg(String roomId) {
+		sqlSession.update("reSetSUnReadMsg",roomId);
+	}
+
+	@Override
+	public void saveRecentMsg(ChatMessageDto message) {
+		sqlSession.update("saveRecentMsg",message);
+	}
+
+//	@Override
+//	public String findUserImg(String uId) {
+//		String userImg = sqlSession.selectOne("findUserImg",uId);
+//		return userImg;
+//	}
+//
+//	@Override
+//	public void mdfChatRoomSImg(Map<String, Object> map) {
+//		sqlSession.update("mdfChatRoomSImg",map);
+//	}
+//
+//	@Override
+//	public void mdfChatRoomPImg(Map<String, Object> map) {
+//		sqlSession.update("mdfChatRoomPImg",map);
+//	}
+
 }

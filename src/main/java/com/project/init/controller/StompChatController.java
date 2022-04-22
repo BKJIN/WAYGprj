@@ -19,17 +19,24 @@ public class StompChatController {
 		this.template = template;
 	}
 	
-	@RequestMapping(value="/chat/rooms")
-	public String chatrooms() {
-		return "chat/rooms";
-	}
+//	@RequestMapping(value="/chat/rooms")
+//	public String chatrooms() {
+//		return "chat/rooms";
+//	}
 	
 	@MessageMapping(value="/chat/message")
 	public void message(ChatMessageDto message) {
-		template.convertAndSend("/sub/chat/room/" + message.getM_roomId(), message);
 		ChatDao cdao = Constant.cdao;
+		cdao.addUnReadMsg(message);
+		template.convertAndSend("/sub/chat/room/" + message.getM_roomId(), message);
 		cdao.saveMsg(message);
+		cdao.saveRecentMsg(message);
 		cdao.enterRoom(message.getM_roomId()); //메세지를 보내면 pubExit,subExit 둘 다 f로 update
 		System.out.println("메세지보냄");
+		if(message.getM_pubId().equals(message.getM_sendId())) {
+			template.convertAndSend("/sub/chat/"+message.getM_subId(), message);
+		} else {
+			template.convertAndSend("/sub/chat/"+message.getM_pubId(), message);
+		}
 	}
 }

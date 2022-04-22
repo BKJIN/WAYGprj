@@ -1,6 +1,8 @@
 package com.project.init.command;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -31,6 +33,15 @@ public class ChatRoomListCommand implements ICommand {
 				} else {
 				dto.setChatRoom(dto.getSubNick());
 				dto.setRoomImg(dto.getSubImg());
+				dto.setNewMsgNum(dto.getPubUnReadMsg());
+				dto.setRecentMsg(dto.getPubRecentMsg());
+				//dto.setRoomImg("/init/resources/profileImg/" + cdao.findUserImg(dto.getSubId()));
+				//String ChatRoomImg = "/init/resources/profileImg/" + cdao.findUserImg(dto.getSubId());
+				//Map <String, Object> map = new HashMap<String, Object>();
+				//map.put("ChatRoomImg", ChatRoomImg);
+				//map.put("subId", dto.getSubId());
+				//cdao.mdfChatRoomSImg(map);
+				
 				}	
 			} else {
 				if(dto.getSubExit().equals("t")) {
@@ -38,6 +49,14 @@ public class ChatRoomListCommand implements ICommand {
 				} else {
 				dto.setChatRoom(dto.getPubNick());
 				dto.setRoomImg(dto.getPubImg());
+				dto.setNewMsgNum(dto.getSubUnReadMsg());
+				dto.setRecentMsg(dto.getSubRecentMsg());
+				//dto.setRoomImg("/init/resources/profileImg/" + cdao.findUserImg(dto.getPubId()));
+				//String ChatRoomImg = "/init/resources/profileImg/" + cdao.findUserImg(dto.getPubId());
+				//Map <String, Object> map = new HashMap<String, Object>();
+				//map.put("ChatRoomImg", ChatRoomImg);
+				//map.put("pubId", dto.getPubId());
+				//cdao.mdfChatRoomPImg(map);
 				}
 			}
 			System.out.println(dto.getChatRoom() + ", " + dto.getRoomImg());

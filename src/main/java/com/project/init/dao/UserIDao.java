@@ -10,7 +10,7 @@ public interface UserIDao {
 	
 	public int nickCheck(String nick);
 	
-	public String join(String UEmail, String UPw, String UNickName, String UBirth, String UGender, String UPst, String UAddr1, String UAddr2);
+	public String join(String UEmail, String UPw, String UNickName, String UBirth, String UGender, String UPst, String UAddr1, String basicImg, String UAddr2);
 	
 	public UserDto login(String uId);
 	
@@ -30,7 +30,7 @@ public interface UserIDao {
 	
 	public String getolduPrfImg(String uId);
 	
-	public void deletePrfImg(String uId);
+	public void deletePrfImg(Map<String,Object> map);
 	
 	public UserDto searchNick(Map<String,Object> map);
 	

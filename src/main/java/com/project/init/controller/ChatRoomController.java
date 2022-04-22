@@ -87,13 +87,13 @@ public class ChatRoomController {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		User user = (User)authentication.getPrincipal();
 		String pubId = user.getUsername();
-		ChatRoomDto chkroom = new ChatRoomDto(0,null,pubId,subId,null,null,null,null,0,0,null,null);
+		ChatRoomDto chkroom = new ChatRoomDto(0,null,pubId,subId,null,null,null,null,0,0,null,null,0,0,null,null);
 		ChatRoomDto dto = cdao.checkChatRoom(chkroom);
 		if(dto == null) {
 			String pubNick = cdao.nickFromId(pubId);
 			String roomId = UUID.randomUUID().toString();
-			String pubImg = "/init/resources/profileImg/" + udao.searchImg(user.getUsername());
-			ChatRoomDto crdto = new ChatRoomDto(0,roomId,pubId,subId,pubImg,subImg,pubNick,subNick,0,0,null,null);
+			String pubImg = udao.searchImg(user.getUsername());
+			ChatRoomDto crdto = new ChatRoomDto(0,roomId,pubId,subId,pubImg,subImg,pubNick,subNick,0,0,null,null,0,0,null,null);
 			cdao.createChatRoom(crdto);
 			return "success";
 		}
@@ -117,12 +117,14 @@ public class ChatRoomController {
 			HashMap<String, Object> map = new HashMap<String, Object>();
 			map.put("mdtos", mdtos);
 			map.put("cdto", cdto);
+			cdao.reSetPUnReadMsg(roomId);
 			return map;
 		} else {
 			ArrayList<ChatMessageDto> mdtos = cdao.getChatMsgDtoSub(roomId);
 			HashMap<String, Object> map = new HashMap<String, Object>();
 			map.put("mdtos", mdtos);
 			map.put("cdto", cdto);
+			cdao.reSetSUnReadMsg(roomId);
 			return map;
 		}
 	}
@@ -166,6 +168,20 @@ public class ChatRoomController {
 			map.put("uId", user.getUsername());
 			cdao.subExitRoom(map);
 			System.out.println("sub채팅방 나감");
+			return "success";
+		}
+	}
+	
+	@PostMapping("/resetUnreadMsg")
+	@ResponseBody
+	public String resetUnreadMsg(@RequestParam String roomId, @RequestParam String pubId, @RequestParam String subId) {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		User user = (User)authentication.getPrincipal();
+		if(pubId.equals(user.getUsername())) {
+			cdao.reSetPUnReadMsg(roomId);
+			return "success";
+		} else {
+			cdao.reSetSUnReadMsg(roomId);
 			return "success";
 		}
 	}

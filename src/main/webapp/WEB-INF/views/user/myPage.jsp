@@ -123,14 +123,14 @@
 	<form action="add_PrfImg?${_csrf.parameterName}=${_csrf.token}" method="POST" enctype="multipart/form-data">
 		<div class="d-flex justify-content-center">
 			<c:choose>
-				<c:when test="${not empty fileName}">
+				<c:when test="${fileName eq 'circle-user-regular.svg'}">
+					<i class="user-info-icon fa-regular fa-circle-user" style="font-size:6rem; color: #112FE0;"></i>
+				</c:when>
+				<c:otherwise>
 					<div id="prfImgArea">
 						<img src="/init/resources/profileImg/${fileName}" class="rounded-circle" width="100" height="100">
 						<a href="eraseImg" class="eraseImg"><i class="fa-solid fa-eraser"></i></a>
 					</div>
-				</c:when>
-				<c:otherwise>
-					<i class="user-info-icon fa-regular fa-circle-user" style="font-size:6rem; color: #112FE0;"></i>
 				</c:otherwise>
 			</c:choose>
 		</div>

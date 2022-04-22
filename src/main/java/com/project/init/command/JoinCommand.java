@@ -1,5 +1,7 @@
 package com.project.init.command;
 
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -24,12 +26,15 @@ public class JoinCommand implements ICommand {
 		String UAddr1 = request.getParameter("uAddr1");
 		String UAddr2 = request.getParameter("uAddr2");
 		//String UAddr = UAddr1+UAddr2;
+		Map<String, Object> map = model.asMap();
+		String basicImg = (String) map.get("basicImg");
+		System.out.println("basigImg: " + basicImg );
 		
 		String UPw_org = UPw; //암호화 되기전 password를 UPw_org에 저장
 		UPw = passwordEncoder.encode(UPw_org); //암호화
 		System.out.println(UPw + " size " + UPw.length());
 		
-		String result = udao.join(UEmail,UPw,UNickName,UBirth,UGender,UPst,UAddr1,UAddr2);
+		String result = udao.join(UEmail,UPw,UNickName,UBirth,UGender,UPst,UAddr1,basicImg,UAddr2);
 		
 		request.setAttribute("result", result); //controller에서 결과 사용
 	}

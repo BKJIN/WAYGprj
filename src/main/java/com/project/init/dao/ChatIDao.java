@@ -34,4 +34,18 @@ public interface ChatIDao {
 	public void subExitRoom(Map<String, Object> map);
 	
 	public void enterRoom(String roomId);
+	
+	//public String findUserImg(String uId);
+	
+	//public void mdfChatRoomSImg(Map<String, Object> map);
+
+	//public void mdfChatRoomPImg(Map<String, Object> map);
+	
+	public void addUnReadMsg(ChatMessageDto message);
+	
+	public void reSetPUnReadMsg(String roomId);
+
+	public void reSetSUnReadMsg(String roomId);
+	
+	public void saveRecentMsg(ChatMessageDto message);
 }

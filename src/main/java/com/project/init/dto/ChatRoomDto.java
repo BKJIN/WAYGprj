@@ -14,16 +14,22 @@ public class ChatRoomDto {
 	private int subExitNum;
 	private String pubExit;
 	private String subExit;
+	private int pubUnReadMsg;
+	private int subUnReadMsg;
+	private String pubRecentMsg;
+	private String subRecentMsg;
 	
 	private String chatRoom;
 	private String roomImg;
+	private int newMsgNum;
+	private String recentMsg;
 	
 	public ChatRoomDto() {
 		super();
 	}
 
 	public ChatRoomDto(int roomNum, String roomId, String pubId, String subId, String pubImg, String subImg,
-			String pubNick, String subNick, int pubExitNum, int subExitNum, String pubExit, String subExit) {
+			String pubNick, String subNick, int pubExitNum, int subExitNum, String pubExit, String subExit, int pubUnReadMsg, int subUnReadMsg, String pubRecentMsg, String subRecentMsg) {
 		super();
 		this.roomNum = roomNum;
 		this.roomId = roomId;
@@ -37,6 +43,10 @@ public class ChatRoomDto {
 		this.subExitNum = subExitNum;
 		this.pubExit = pubExit;
 		this.subExit = subExit;
+		this.pubUnReadMsg = pubUnReadMsg;
+		this.subUnReadMsg = subUnReadMsg;
+		this.pubRecentMsg = pubRecentMsg;
+		this.subRecentMsg = subRecentMsg;
 	}
 
 	public int getRoomNum() {
@@ -149,6 +159,54 @@ public class ChatRoomDto {
 
 	public void setSubExit(String subExit) {
 		this.subExit = subExit;
+	}
+
+	public int getPubUnReadMsg() {
+		return pubUnReadMsg;
+	}
+
+	public void setPubUnReadMsg(int pubUnReadMsg) {
+		this.pubUnReadMsg = pubUnReadMsg;
+	}
+
+	public int getSubUnReadMsg() {
+		return subUnReadMsg;
+	}
+
+	public void setSubUnReadMsg(int subUnReadMsg) {
+		this.subUnReadMsg = subUnReadMsg;
+	}
+
+	public int getNewMsgNum() {
+		return newMsgNum;
+	}
+
+	public void setNewMsgNum(int newMsgNum) {
+		this.newMsgNum = newMsgNum;
+	}
+
+	public String getPubRecentMsg() {
+		return pubRecentMsg;
+	}
+
+	public void setPubRecentMsg(String pubRecentMsg) {
+		this.pubRecentMsg = pubRecentMsg;
+	}
+
+	public String getSubRecentMsg() {
+		return subRecentMsg;
+	}
+
+	public void setSubRecentMsg(String subRecentMsg) {
+		this.subRecentMsg = subRecentMsg;
+	}
+
+	public String getRecentMsg() {
+		return recentMsg;
+	}
+
+	public void setRecentMsg(String recentMsg) {
+		this.recentMsg = recentMsg;
 	}
 	
 }

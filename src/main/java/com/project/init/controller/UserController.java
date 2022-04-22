@@ -1,7 +1,11 @@
 package com.project.init.controller;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -61,9 +65,17 @@ public class UserController {
 	
 	@RequestMapping(value = "/user/join", method=RequestMethod.POST, produces = "application/text; charset=UTF8")
 	@ResponseBody
-	public String join(HttpServletRequest request, HttpServletResponse response, Model model) {
+	public String join(HttpServletRequest request, HttpServletResponse response, Model model) throws IOException{
 		System.out.println("join");
 		mcom = new JoinCommand();
+		long prename = System.currentTimeMillis();
+		// 1. 원본 File, 복사할 File 준비
+		File imgFile = new File("C:/ecl/workspace/project_init/src/main/webapp/resources/profileImg/circle-user-regular.svg");
+		String basicImg = prename + "circle-user-regular.svg";
+		File newImgFile = new File("C:/ecl/workspace/project_init/src/main/webapp/resources/profileImg/"+basicImg);
+		// 2. 복사
+		Files.copy(imgFile.toPath(), newImgFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+		model.addAttribute("basicImg", basicImg);
 		mcom.execute(request, model);
 		String result = (String) request.getAttribute("result");
 		System.out.println(result);
@@ -171,13 +183,15 @@ public class UserController {
 				mf.transferTo(new File(safeFile1));
 				
 				//기존 저장돼있던 사진 삭제
-				File file = new File(path + olduPrfImg);
-				File file1 = new File(path1 + olduPrfImg);
-				if(file.exists()) {
-					file.delete();
-				}
-				if(file1.exists()) {
-					file1.delete();
+				if(!olduPrfImg.equals("circle-user-regular.svg")) {
+					File file = new File(path + olduPrfImg);
+					File file1 = new File(path1 + olduPrfImg);
+					if(file.exists()) {
+						file.delete();
+					}
+					if(file1.exists()) {
+						file1.delete();
+					}
 				}
 			}
 			catch(Exception e) {
@@ -191,12 +205,29 @@ public class UserController {
 	}
 	
 	@RequestMapping("/user/eraseImg")
-	public String eraseImg() {
+	public String eraseImg() throws IOException {
 		System.out.println("eraseImg");
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		User user = (User)authentication.getPrincipal();
 		String olduPrfImg = udao.getolduPrfImg(user.getUsername());
-		udao.deletePrfImg(user.getUsername());
+		
+		long prename = System.currentTimeMillis();
+		// 1. 원본 File, 복사할 File 준비
+		File imgFile = new File("C:/ecl/workspace/project_init/src/main/webapp/resources/profileImg/circle-user-regular.svg");
+		String basicImg = prename + "circle-user-regular.svg";
+		File newImgFile = new File("C:/ecl/workspace/project_init/src/main/webapp/resources/profileImg/"+basicImg);
+		// 2. 복사
+		Files.copy(imgFile.toPath(), newImgFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+
+		File imgFile1 = new File("C:/ecl/workspace/project_init/src/main/webapp/resources/profileImg/"+basicImg);
+		File newImgFile1 = new File("C:/ecl/apache-tomcat-9.0.56/wtpwebapps/project_init/resources/profileImg/"+basicImg);
+		
+		Files.copy(imgFile1.toPath(), newImgFile1.toPath(), StandardCopyOption.REPLACE_EXISTING);
+		
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("uId", user.getUsername());
+		map.put("basicImg", basicImg);
+		udao.deletePrfImg(map);
 		
 		//기존 저장돼있던 사진 삭제
 		String path = "C:/ecl/workspace/project_init/src/main/webapp/resources/profileImg/";

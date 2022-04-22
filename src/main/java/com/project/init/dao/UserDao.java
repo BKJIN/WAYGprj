@@ -26,10 +26,10 @@ public class UserDao implements UserIDao {
 	}
 	
 	@Override
-	public String join(String UEmail, String UPw, String UNickName, String UBirth, String UGender, String UPst, String UAddr1, String UAddr2) {
+	public String join(String UEmail, String UPw, String UNickName, String UBirth, String UGender, String UPst, String UAddr1, String basicImg, String UAddr2) {
 		int UAgeNum = getAgeByBirthDay(UBirth);
 		int UPstNum = Integer.parseInt(UPst);
-		UserDto dto = new UserDto(UEmail,UPw,UNickName,UBirth,UAgeNum,UGender,UPstNum,UAddr1,null,null,null,null,null,null,null,UAddr2);
+		UserDto dto = new UserDto(UEmail,UPw,UNickName,UBirth,UAgeNum,UGender,UPstNum,UAddr1,basicImg,null,null,null,null,null,null,UAddr2);
 		int res = sqlSession.insert("join",dto);
 		System.out.println(res);
 		String result = null;
@@ -99,8 +99,8 @@ public class UserDao implements UserIDao {
 	}
 	
 	@Override
-	public void deletePrfImg(String uId) {
-		sqlSession.update("deletePrfImg",uId);
+	public void deletePrfImg(Map<String,Object> map) {
+		sqlSession.update("deletePrfImg",map);
 	}
 
 	@Override

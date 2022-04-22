@@ -14,8 +14,8 @@
 	</select>
 
 	<insert id="join" parameterType="com.project.init.dto.UserDto">
-		insert into userinfo(useremail,userpw,usernick,userbirth,userage,usergender,userpst,useraddress1,userjoindate,useraddress2) 
-		values(#{userEmail},#{userPw},#{userNick},#{userBirth},#{userAge},#{userGender},#{userPst},#{userAddress1},sysdate,#{userAddress2})
+		insert into userinfo(useremail,userpw,usernick,userbirth,userage,usergender,userpst,useraddress1,userprofileimg,userjoindate,useraddress2) 
+		values(#{userEmail},#{userPw},#{userNick},#{userBirth},#{userAge},#{userGender},#{userPst},#{userAddress1},#{userProfileImg},sysdate,#{userAddress2})
 	</insert> <!-- values값 dto랑 맞춰서 -->
 	
 	<select id="login" parameterType="String" resultType="com.project.init.dto.UserDto">
@@ -38,8 +38,8 @@
 		update userinfo set userprofileimg = #{userProfileImg} where useremail = #{userEmail}
 	</update>
 	
-	<update id="deletePrfImg" parameterType="String">
-		update userinfo set userprofileimg = null where useremail = #{uId}		
+	<update id="deletePrfImg" parameterType="Map">
+		update userinfo set userprofileimg = #{basicImg} where useremail = #{uId}		
 	</update>
 
 	<update id="mdfMyPage" parameterType="com.project.init.dto.UserDto">

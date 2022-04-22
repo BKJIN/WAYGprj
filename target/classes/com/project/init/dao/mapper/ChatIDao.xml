@@ -19,7 +19,7 @@
 </select>
 
 <insert id="createChatRoom" parameterType="com.project.init.dto.ChatRoomDto">
-	insert into chatroom values(CHAT_ROOM_SEQ.nextval,#{roomId},#{pubId},#{subId},#{pubImg},#{subImg},#{pubNick},#{subNick},1,1,'f','f')
+	insert into chatroom values(CHAT_ROOM_SEQ.nextval,#{roomId},#{pubId},#{subId},#{pubImg},#{subImg},#{pubNick},#{subNick},1,1,'f','t',0,0,null,null)
 </insert>
 
 <select id="chatRoomList" parameterType="String" resultType="com.project.init.dto.ChatRoomDto">
@@ -43,7 +43,7 @@
 </select>
 
 <insert id="saveMsg" parameterType="com.project.init.dto.ChatMessageDto">
-	insert into chatmessage values (#{m_roomId}, #{m_pubId}, #{m_pubNick}, #{m_subId}, #{m_subNick}, #{m_sendTime}, #{m_pubImg}, #{m_subImg}, CHAT_MSG_SEQ.nextval, #{m_sendId}, #{m_pubMsg, jdbcType = VARCHAR}, #{m_subMsg, jdbcType = VARCHAR})
+	insert into chatmessage values (#{m_roomId}, #{m_pubId}, #{m_pubNick}, #{m_subId}, #{m_subNick}, #{m_sendTime}, #{m_pubImg, jdbcType = VARCHAR}, #{m_subImg, jdbcType = VARCHAR}, CHAT_MSG_SEQ.nextval, #{m_sendId}, #{m_pubMsg, jdbcType = VARCHAR}, #{m_subMsg, jdbcType = VARCHAR})
 </insert>
 
 <select id="otherExitChk" parameterType="String" resultType="com.project.init.dto.ChatRoomDto">
@@ -55,15 +55,44 @@
 </delete>
 
 <update id="pubExitRoom" parameterType="Map">
-	update chatroom set pubExitNum=(select max(m_num) from chatmessage where roomid = #{roomId}), pubExit = 't' where roomid= #{roomId}
+	update chatroom set pubExitNum=(select max(m_num) from chatmessage where roomid = #{roomId}), pubExit = 't', pubrecentmsg = null where roomid= #{roomId}
 </update>
 
 <update id="subExitRoom" parameterType="Map">
-	update chatroom set subExitNum=(select max(m_num) from chatmessage where roomid = #{roomId}), subExit = 't' where roomid= #{roomId}
+	update chatroom set subExitNum=(select max(m_num) from chatmessage where roomid = #{roomId}), subExit = 't', subrecentmsg = null where roomid= #{roomId}
 </update>
 	
 <update id="enterRoom" parameterType="String">
 	update chatroom set pubexit = 'f' , subexit = 'f' where roomid = #{roomId}
 </update>
+
+<!-- <select id="findUserImg" parameterType="String" resultType="String">
+	select userprofileimg from userinfo where useremail = #{uId}
+</select>
+
+<update id="mdfChatRoomSImg" parameterType="Map">
+	update chatroom set subimg = #{ChatRoomImg} where subid = #{subId}
+</update>
+
+<update id="mdfChatRoomPImg" parameterType="Map">
+	update chatroom set pubimg = #{ChatRoomImg} where pubid = #{pubId}
+</update> -->
+
+<update id="addUnReadMsg" parameterType="com.project.init.dto.ChatMessageDto">
+	update chatroom set pubunreadmsg = (select NVL(MAX(pubunreadmsg), '0') + 1 from chatroom where roomid = #{m_roomId}) , subunreadmsg = (select NVL(MAX(subunreadmsg), '0') + 1  from chatroom where roomid = #{m_roomId}) where roomid = #{m_roomId}
+</update>
+
+<update id="reSetPUnReadMsg" parameterType="String">
+	update chatroom set pubunreadmsg = 0 where roomid = #{roomId}
+</update>
+
+<update id="reSetSUnReadMsg" parameterType="String">
+	update chatroom set subunreadmsg = 0 where roomid = #{roomId}
+</update>
+
+<update id="saveRecentMsg" parameterType="com.project.init.dto.ChatMessageDto">
+	update chatroom set pubrecentmsg = concat(#{m_pubMsg, jdbcType = VARCHAR},#{m_subMsg, jdbcType = VARCHAR}), subrecentmsg = concat(#{m_pubMsg, jdbcType = VARCHAR},#{m_subMsg, jdbcType = VARCHAR}) where roomid= #{m_roomId}
+</update>
+
 </mapper>
 

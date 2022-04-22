@@ -86,6 +86,14 @@ body{margin-top:20px;}
 #inputMsg {
 	visibility: hidden;
 }
+
+#newMsg {
+	width:150px;
+	height:24px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
 </style>
 </head>
 <body>
@@ -133,20 +141,28 @@ body{margin-top:20px;}
 					</a>
 					
 					<div id="userList" class="list-group d-flex justify-content-around">
-					<c:forEach items="${chatRoomList}" var="dto">
-					<button class="addedUserInfo ${dto.roomNum} list-group-item list-group-item-action mb-1" style="display:none; position:relative;">
-						<div class="rId" style="display:none;">${dto.roomId}</div>
-						<div id="addedUserLook" class="d-flex align-items-center">
-							<img src="${dto.roomImg}" class="rounded-circle mr-1" width="40" height="40">
-							<div class="addedUserNicks flex-grow-1 ml-3">
-								<b>${dto.chatRoom}</b>
+						<c:forEach items="${chatRoomList}" var="dto">
+						<button class="addedUserInfo ${dto.roomId} list-group-item list-group-item-action mb-1" style="display:none; position:relative;">
+							<div class="rId" style="display:none;">${dto.roomId}</div>
+							<div id="addedUserLook" class="d-flex align-items-center">
+								<img src="/init/resources/profileImg/${dto.roomImg}" class="rounded-circle mr-1" width="40" height="40">
+								<div class="addedUserNicks flex-grow-1 ml-3">
+									<b>${dto.chatRoom}</b>
+									<div id="newMsg">${dto.recentMsg}</div>
+								</div>
+								<c:choose>
+									<c:when test="${dto.newMsgNum eq 0}">
+										<div id="unReadMsg" class="badge bg-success"></div>
+									</c:when>
+									<c:otherwise>
+										<div id="unReadMsg" class="badge bg-success">${dto.newMsgNum}</div>
+									</c:otherwise>
+								</c:choose>
 							</div>
-							<!-- <div class="badge bg-success">5</div> -->
-						</div>
-					</button>
-					</c:forEach>
+						</button>
+						</c:forEach>
 					
-				</div>
+					</div>
 					<hr class="d-block d-lg-none mt-1 mb-0">
 				</div>
 				<div class="col-12 col-lg-7 col-xl-9 border-left px-0">
@@ -176,9 +192,9 @@ body{margin-top:20px;}
 <%@ include file="../includes/footer.jsp" %>
 
 <script>
-function check() {
+/* function check() {
 	console.log("1");
-}
+} */
 $(document).ready(function() {
 	var userInfo;
 	$("#searchNick").keyup(function(){
@@ -193,7 +209,7 @@ $(document).ready(function() {
 					$("#foundUserInfo").css("display","block");
 					$("#foundUserImg").attr("src","/init/resources/profileImg/"+data.userProfileImg);
 					$("#foundUserNick").html(data.userNick);
-					userInfo = {userNick:data.userNick, userImg:"/init/resources/profileImg/"+data.userProfileImg}
+					userInfo = {userNick:data.userNick, userImg:data.userProfileImg}
 				} else {
 					$("#foundUserInfo").css("display","none");
 				}
@@ -247,7 +263,57 @@ $(document).ready(function() {
 	
 	stomp.connect({}, function(){
 		console.log("STOMP Connection");
-		$(".addedUserInfo ${dto.roomNum}").click(function(){
+		
+		stomp.subscribe("/sub/chat/" + uId, function(chat) {
+			console.log("실시간 알림 받음");
+			var content = JSON.parse(chat.body);
+			var str = '';
+			var msg;
+			var one	= 1;
+			
+			if(content.m_pubMsg == null) {
+				msg = content.m_subMsg;
+			} else {
+				msg = content.m_pubMsg;
+			}
+			
+			if($(".addedUserInfo." + content.m_roomId).children("div:first").html() == content.m_roomId) {
+  				$(".addedUserInfo." + content.m_roomId).find("#newMsg").html(msg);
+  				$(".addedUserInfo." + content.m_roomId).find("#unReadMsg").html(+$(".addedUserInfo." + content.m_roomId).find("#unReadMsg").html() + one);
+			} else {
+				if(uId == content.m_pubId) {
+					str = '<button class="addedUserInfo ' + content.m_roomId + ' list-group-item list-group-item-action mb-1">'
+					str += '<div class="rId" style="display:none;">' + content.m_roomId + '</div>'
+					str += '<div id="addedUserLook" class="d-flex align-items-center">'
+					str += '<img src="/init/resources/profileImg/' + content.m_subImg + '" class="rounded-circle mr-1" width="40" height="40">'
+					str += '<div class="addedUserNicks flex-grow-1 ml-3">'
+					str += '<b>' + content.m_subNick + '</b>'
+					str += '<div id="newMsg">' + msg + '</div>'
+					str += '</div>'
+					str += '<div id="unReadMsg" class="badge bg-success">' + 1 + '</div>'
+					str += '</div>'
+					str += '</button>'
+					$("#userList").append(str);
+				} else {
+					str = '<button class="addedUserInfo ' + content.m_roomId + ' list-group-item list-group-item-action mb-1">'
+					str += '<div class="rId" style="display:none;">' + content.m_roomId + '</div>'
+					str += '<div id="addedUserLook" class="d-flex align-items-center">'
+					str += '<img src="/init/resources/profileImg/' + content.m_pubImg + '" class="rounded-circle mr-1" width="40" height="40">'
+					str += '<div class="addedUserNicks flex-grow-1 ml-3">'
+					str += '<b>' + content.m_pubNick + '</b>'
+					str += '<div id="newMsg">' + msg + '</div>'
+					str += '</div>'
+					str += '<div id="unReadMsg" class="badge bg-success">' + 1 + '</div>'
+					str += '</div>'
+					str += '</button>'
+					$("#userList").append(str);
+				}
+			}
+			
+		});
+		
+		$(document).on("click",".addedUserInfo",function(){
+		//$(".addedUserInfo").click(function(){
 			$(".addedUserInfo").attr("disabled",true);
 			//$(".addedUserInfo").not(this).css("display","block");
 			$("#inputMsg").css("visibility", "visible");
@@ -277,7 +343,7 @@ $(document).ready(function() {
 			    		var otherImg = subImg;
 			    		var str = '';
 			    		str = '<div class="position-relative">';
-						str += '<img src="' + otherImg + '" class="rounded-circle mr-1" width="40" height="40">';
+						str += '<img src="' + '/init/resources/profileImg/' + otherImg + '" class="rounded-circle mr-1" width="40" height="40">';
 						str += '</div>';
 			    		str += '<div class="flex-grow-1 pl-3">';
 						str += '<strong>' + subNick + '</strong>';
@@ -293,7 +359,7 @@ $(document).ready(function() {
 			    		var otherImg = pubImg;
 			    		var str = '';
 			    		str = '<div class="position-relative">';
-						str += '<img src="' + otherImg + '" class="rounded-circle mr-1" width="40" height="40">';
+						str += '<img src="' + '/init/resources/profileImg/' + otherImg + '" class="rounded-circle mr-1" width="40" height="40">';
 						str += '</div>';
 			    		str += '<div class="flex-grow-1 pl-3">';
 						str += '<strong>' + pubNick + '</strong>';
@@ -325,7 +391,7 @@ $(document).ready(function() {
 							if(data.mdtos[i].m_subMsg != null) {
 								str1 = '<div class="chat-message-left pb-4">';
 								str1 += '<div>';
-								str1 += '<img src="' + data.mdtos[i].m_subImg + '" class="rounded-circle mr-1" width="40" height="40">';
+								str1 += '<img src="' + '/init/resources/profileImg/' + data.mdtos[i].m_subImg + '" class="rounded-circle mr-1" width="40" height="40">';
 								str1 += '<div class="text-muted small text-nowrap mt-2">' + data.mdtos[i].m_sendTime + '</div>';
 								str1 += '</div>';
 								str1 += '<div class="flex-shrink-1 bg-light rounded py-2 px-3 ml-3">';
@@ -350,7 +416,7 @@ $(document).ready(function() {
 							if(data.mdtos[i].m_pubMsg != null) {
 								str1 = '<div class="chat-message-left pb-4">';
 								str1 += '<div>';
-								str1 += '<img src="' + data.mdtos[i].m_pubImg + '" class="rounded-circle mr-1" width="40" height="40">';
+								str1 += '<img src="' + '/init/resources/profileImg/' + data.mdtos[i].m_pubImg + '" class="rounded-circle mr-1" width="40" height="40">';
 								str1 += '<div class="text-muted small text-nowrap mt-2">' + data.mdtos[i].m_sendTime + '</div>';
 								str1 += '</div>';
 								str1 += '<div class="flex-shrink-1 bg-light rounded py-2 px-3 ml-3">';
@@ -399,7 +465,7 @@ $(document).ready(function() {
 						else {
 							str = '<div class="chat-message-left pb-4">';
 							str += '<div>';
-							str += '<img src="' + img + '" class="rounded-circle mr-1" width="40" height="40">';
+							str += '<img src="' + '/init/resources/profileImg/' + img + '" class="rounded-circle mr-1" width="40" height="40">';
 							str += '<div class="text-muted small text-nowrap mt-2">' + content.m_sendTime + '</div>';
 							str += '</div>';
 							str += '<div class="flex-shrink-1 bg-light rounded py-2 px-3 ml-3">';
@@ -410,6 +476,22 @@ $(document).ready(function() {
 							$("#msgArea").append(str);
 							$(".chat-messages").scrollTop($(".chat-messages")[0].scrollHeight);
 						}
+						
+						$.ajax({
+							type: "POST",
+							url : "resetUnreadMsg",
+							data: {roomId:content.m_roomId, pubId:content.m_pubId, subId:content.m_subId},
+							beforeSend: function(xhr){
+						    	var token = $("meta[name='_csrf']").attr('content');
+						    	var header = $("meta[name='_csrf_header']").attr('content');
+						    	xhr.setRequestHeader(header, token);
+						    },
+						    success: function(data) {
+						    	
+						    }, error : function() {
+								alert("서버에러로 안읽은 메세지 갯수를 초기화하지 못했습니다.");
+						    }
+						});
 			
 					});
 		
